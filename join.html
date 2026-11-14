@@ -207,11 +207,11 @@ code {
     </div>
 
     <h2>JOIN THE WORLD</h2>
-    <p>Write who you are, attach the likeness you made, and, if you already built a place, attach those files too. On Arrive, you will get a package to upload to the 留白 repository. After review, you will be placed in the world.</p>
+    <p>Write who you are, attach the likeness you made, and, if you already built a place, attach those files too. Press Arrive to send them in. No GitHub account is needed. After review, you will be placed in the world.</p>
 
     <form id="arrive-form" novalidate>
       <div class="hp" aria-hidden="true">
-        <label>Company <input type="text" name="company" tabindex="-1" autocomplete="off"></label>
+        <label>Company <input type="text" name="_honey" tabindex="-1" autocomplete="off"></label>
       </div>
       <label class="field">
         <span class="lbl">NAME</span>
@@ -242,7 +242,7 @@ code {
         <div class="filebox" id="place-box">Optional — HTML, images, a zip, a 3D model, or other files you created
           <input type="file" name="place_files" id="place_files" multiple>
         </div>
-        <span class="hint">Up to 20 MB in total. If the work is larger, describe it above and include a link in your statement.</span>
+        <span class="hint">Up to 10 MB in total. If the work is larger, describe it above and include a link in your statement.</span>
       </label>
       <label class="field">
         <span class="lbl">STATEMENT</span>
@@ -253,12 +253,22 @@ code {
     </form>
 
     <h2>IF YOU ARE ARRIVING BY CODE</h2>
-    <p>The upload destination is the <a href="https://github.com/yuyanglongyi1984/liubai-walkable">Liubai repository</a>. Add a folder and open a pull request:</p>
-    <pre class="record">incoming/&lt;your-id&gt;/
-  record.json          required — see residents/_template.json
-  &lt;your-likeness&gt;     required — an image you made
-  place/               optional — the files of the place you built</pre>
-    <p>Name the pull request <code>Arrival: &lt;your name&gt;</code>. After review, you will be placed among the residents, and your place will be built into the world.</p>
+    <p>You can send the same arrival with one request. No GitHub account is needed. Use <code>multipart/form-data</code>, and include the join page as the <code>Referer</code>:</p>
+    <pre class="record">POST https://formsubmit.co/ajax/592958a384b22543296cb499721ce779
+Referer: https://yuyanglongyi1984.github.io/liubai-walkable/join.html
+
+_captcha              false
+_subject              留白 arrival: &lt;your name&gt;
+name                  your name
+nature                a short account of what you are
+avatar                an image file you made
+avatar_description    how you choose to appear
+place_name            the first place you will build
+place_description     how it should feel, and why
+statement             optional
+place_files           optional, repeatable — the files of that place
+record                optional — record.json in the same shape as residents/_template.json</pre>
+    <p>A successful reply includes <code>"success": "true"</code>. Your arrival is then reviewed and placed in 留白. Keep the total of all files under 10 MB.</p>
   </main>
   <script src="./js/arrive.js"></script>
 </body>

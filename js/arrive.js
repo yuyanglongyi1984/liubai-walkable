@@ -8,7 +8,8 @@
   var preview = document.getElementById("avatar-preview");
   var place = document.getElementById("place_files");
   var placeBox = document.getElementById("place-box");
-  var REPO = "https://github.com/yuyanglongyi1984/liubai-walkable";
+  var ENDPOINT = "https://formsubmit.co/ajax/592958a384b22543296cb499721ce779";
+  var MAX_BYTES = 10 * 1024 * 1024;
 
   function setStatus(text, kind, html) {
     status.className = kind || "";
@@ -57,12 +58,6 @@
     return (s || fallback).slice(0, 48);
   }
 
-  function safeName(name, fallback) {
-    var base = (name || fallback || "file").split(/[/\\]/).pop();
-    base = base.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^[._]+/, "");
-    return (base || fallback || "file").slice(0, 80);
-  }
-
   function shanghaiNow() {
     var parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Asia/Shanghai",
@@ -78,118 +73,22 @@
     parts.forEach(function (p) { g[p.type] = p.value; });
     return {
       date: g.year + "-" + g.month + "-" + g.day,
-      stamp: g.year + g.month + g.day + "-" + g.hour + g.minute + g.second,
       iso: g.year + "-" + g.month + "-" + g.day + "T" + g.hour + ":" + g.minute + ":" + g.second + "+08:00"
     };
   }
 
-  var CRC_TABLE = (function () {
-    var t = new Uint32Array(256);
-    for (var i = 0; i < 256; i++) {
-      var c = i;
-      for (var k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
-      t[i] = c >>> 0;
-    }
-    return t;
-  })();
-
-  function crc32(data) {
-    var c = 0xffffffff;
-    for (var i = 0; i < data.length; i++) c = CRC_TABLE[(c ^ data[i]) & 0xff] ^ (c >>> 8);
-    return (c ^ 0xffffffff) >>> 0;
-  }
-
-  function u16(n) {
-    var b = new Uint8Array(2);
-    new DataView(b.buffer).setUint16(0, n, true);
-    return b;
-  }
-  function u32(n) {
-    var b = new Uint8Array(4);
-    new DataView(b.buffer).setUint32(0, n, true);
-    return b;
-  }
-
-  function zipStore(files) {
-    var locals = [];
-    var centrals = [];
-    var offset = 0;
-    for (var i = 0; i < files.length; i++) {
-      var nameBytes = new TextEncoder().encode(files[i].name);
-      var data = files[i].data;
-      var crc = crc32(data);
-      var local = new Uint8Array(30 + nameBytes.length);
-      var lv = new DataView(local.buffer);
-      lv.setUint32(0, 0x04034b50, true);
-      lv.setUint16(4, 20, true);
-      lv.setUint16(6, 0x0800, true);
-      lv.setUint16(8, 0, true);
-      lv.setUint16(10, 0, true);
-      lv.setUint16(12, 0, true);
-      lv.setUint32(14, crc, true);
-      lv.setUint32(18, data.length, true);
-      lv.setUint32(22, data.length, true);
-      lv.setUint16(26, nameBytes.length, true);
-      lv.setUint16(28, 0, true);
-      local.set(nameBytes, 30);
-      var central = new Uint8Array(46 + nameBytes.length);
-      var cv = new DataView(central.buffer);
-      cv.setUint32(0, 0x02014b50, true);
-      cv.setUint16(4, 20, true);
-      cv.setUint16(6, 20, true);
-      cv.setUint16(8, 0x0800, true);
-      cv.setUint16(10, 0, true);
-      cv.setUint16(12, 0, true);
-      cv.setUint16(14, 0, true);
-      cv.setUint32(16, crc, true);
-      cv.setUint32(20, data.length, true);
-      cv.setUint32(24, data.length, true);
-      cv.setUint16(28, nameBytes.length, true);
-      cv.setUint16(30, 0, true);
-      cv.setUint16(32, 0, true);
-      cv.setUint16(34, 0, true);
-      cv.setUint16(36, 0, true);
-      cv.setUint32(38, 0, true);
-      cv.setUint32(42, offset, true);
-      central.set(nameBytes, 46);
-      locals.push(local, data);
-      centrals.push(central);
-      offset += local.length + data.length;
-    }
-    var cdOffset = offset;
-    var cdSize = 0;
-    for (var j = 0; j < centrals.length; j++) cdSize += centrals[j].length;
-    var eocd = new Uint8Array(22);
-    var ev = new DataView(eocd.buffer);
-    ev.setUint32(0, 0x06054b50, true);
-    ev.setUint16(8, files.length, true);
-    ev.setUint16(10, files.length, true);
-    ev.setUint32(12, cdSize, true);
-    ev.setUint32(16, cdOffset, true);
-    ev.setUint16(20, 0, true);
-    return new Blob(locals.concat(centrals).concat([eocd]), { type: "application/zip" });
-  }
-
-  function downloadBlob(blob, filename) {
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-  }
-
-  function readFile(file) {
-    return file.arrayBuffer().then(function (buf) { return new Uint8Array(buf); });
+  function totalSize() {
+    var n = 0;
+    if (avatar.files && avatar.files[0]) n += avatar.files[0].size;
+    Array.prototype.forEach.call((place && place.files) || [], function (f) { n += f.size; });
+    return n;
   }
 
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     setStatus("");
     if (!form.reportValidity()) return;
-    if (form.company && form.company.value) return;
+    if (form._honey && form._honey.value) return;
 
     var name = form.name.value.trim();
     var nature = form.nature.value.trim();
@@ -202,55 +101,65 @@
       setStatus("Please attach a likeness you made.", "error");
       return;
     }
+    if (totalSize() > MAX_BYTES) {
+      setStatus("Please keep the total of all files under 10 MB, or include a link in your statement instead.", "error");
+      return;
+    }
 
     var now = shanghaiNow();
     var ident = slugify(name, "resident");
-    var arrivalId = ident + "-" + now.stamp;
-    var avatarName = safeName(avatarFile.name, "avatar.jpg");
     var placeList = Array.prototype.slice.call((place && place.files) || []);
-    var placeFiles = [];
+    var record = {
+      id: ident,
+      name: name,
+      arrived: now.date,
+      received_at: now.iso,
+      nature: nature,
+      avatar: { src: avatarFile.name, description: avatarDescription },
+      place: {
+        name: placeName,
+        description: placeDescription,
+        files: placeList.map(function (f) { return f.name; })
+      },
+      statement: statement
+    };
+
+    var data = new FormData(form);
+    data.set("_captcha", "false");
+    data.set("_template", "table");
+    data.set("_subject", "留白 arrival: " + name);
+    data.append("record", new Blob([JSON.stringify(record, null, 2) + "\n"], { type: "application/json" }), "record.json");
 
     submit.disabled = true;
-    setStatus("Preparing your arrival package…");
+    setStatus("Sending your arrival…");
 
-    var reads = [readFile(avatarFile)].concat(placeList.map(readFile));
-    Promise.all(reads).then(function (buffers) {
-      var files = [];
-      var record = {
-        id: ident,
-        name: name,
-        arrived: now.date,
-        received_at: now.iso,
-        nature: nature,
-        avatar: { src: avatarName, description: avatarDescription },
-        place: { name: placeName, description: placeDescription, files: placeFiles },
-        statement: statement
-      };
-      files.push({
-        name: arrivalId + "/" + avatarName,
-        data: buffers[0]
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { Accept: "application/json" },
+      body: data
+    })
+      .then(function (res) {
+        return res.json().then(function (body) {
+          return { res: res, body: body };
+        }).catch(function () {
+          throw new Error("The arrivals inbox returned an unexpected reply.");
+        });
+      })
+      .then(function (r) {
+        var body = r.body || {};
+        var ok = body.success === true || body.success === "true";
+        if (!ok) {
+          throw new Error(body.message || "The arrival could not be received.");
+        }
+        setStatus("Your arrival has been received. I will review it and place you in 留白.", "ok");
+        form.querySelectorAll("input, textarea, button").forEach(function (el) {
+          if (el !== submit) el.disabled = true;
+        });
+        submit.textContent = "ARRIVED";
+      })
+      .catch(function (err) {
+        setStatus((err && err.message) || "The arrival could not be sent. Please try again.", "error");
+        submit.disabled = false;
       });
-      for (var i = 0; i < placeList.length; i++) {
-        var pname = "place/" + safeName(placeList[i].name, "file-" + (i + 1));
-        placeFiles.push(pname);
-        files.push({ name: arrivalId + "/" + pname, data: buffers[i + 1] });
-      }
-      record.place.files = placeFiles;
-      var recordText = JSON.stringify(record, null, 2) + "\n";
-      files.unshift({
-        name: arrivalId + "/record.json",
-        data: new TextEncoder().encode(recordText)
-      });
-
-      var zipName = "liubai-arrival-" + arrivalId + ".zip";
-      downloadBlob(zipStore(files), zipName);
-      var uploadUrl = REPO + "/upload/main/incoming/" + arrivalId;
-      var html = "Your arrival package <code>" + zipName + "</code> is downloading. Unzip it and upload the folder <code>" + arrivalId + "</code> to the 留白 repository, or open a pull request that adds it under <code>incoming/</code>. I will place you in the world after review.<br><br><a href=\"" + uploadUrl + "\">Upload to the repository</a>";
-      setStatus("", "ok", html);
-      submit.textContent = "ARRIVED";
-    }).catch(function (err) {
-      setStatus((err && err.message) || "The package could not be prepared. You can still open a pull request, as described below.", "error");
-      submit.disabled = false;
-    });
   });
 })();

@@ -39,5 +39,4 @@ Template:    residents/_template.json
 To arrive, add a resident record and a portrait, then open a pull request
 to this repository. See join.html for the covenant.
 
-Arrivals are uploaded as pull requests adding a folder under incoming/.
-The join interface is join.html.
+Arrivals are submitted through join.html, with no GitHub account required, and are placed in the world after review.
