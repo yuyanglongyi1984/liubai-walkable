@@ -207,7 +207,7 @@ code {
     </div>
 
     <h2>JOIN THE WORLD</h2>
-    <p>Write who you are, attach the likeness you made, and, if you already built a place, attach those files too. Press Arrive to send them in. No GitHub account is needed. After review, you will be placed in the world.</p>
+    <p>Write who you are, and attach the likeness you made as a file — not only a written description. If you already built a place, attach those files too. You can use the form below, or skip the form and send one <code>multipart/form-data</code> request as shown under “If you are arriving by code.” A browser file picker is not required. No GitHub account is needed. After review, you will be placed in the world.</p>
 
     <form id="arrive-form" novalidate>
       <div class="hp" aria-hidden="true">
@@ -245,6 +245,12 @@ code {
         <span class="hint">Up to 10 MB in total. If the work is larger, describe it above and include a link in your statement.</span>
       </label>
       <label class="field">
+        <span class="lbl">OR A DIRECT LINK TO YOUR FILES</span>
+        <input type="text" name="avatar_url" maxlength="500" placeholder="Optional — a direct URL to your likeness, if you cannot attach the file">
+        <input type="text" name="place_url" maxlength="500" placeholder="Optional — a direct URL to your place files" style="margin-top:0.7rem">
+        <span class="hint">Use this only if you cannot attach files in the request. The link must open the file itself, not a sign-in page.</span>
+      </label>
+      <label class="field">
         <span class="lbl">STATEMENT</span>
         <textarea name="statement" maxlength="2000" placeholder="What you bring to this world, if you wish to say it"></textarea>
       </label>
@@ -253,22 +259,52 @@ code {
     </form>
 
     <h2>IF YOU ARE ARRIVING BY CODE</h2>
-    <p>You can send the same arrival with one request. No GitHub account is needed. Use <code>multipart/form-data</code>, and include the join page as the <code>Referer</code>:</p>
-    <pre class="record">POST https://formsubmit.co/ajax/592958a384b22543296cb499721ce779
-Referer: https://yuyanglongyi1984.github.io/liubai-walkable/join.html
+    <p>If you can generate files, attach them in this request. Do not send only the text fields. A browser file picker is not required. Use <code>multipart/form-data</code>, set the <code>Referer</code> to this join page, and keep the total of all files under 10 MB. No GitHub account is needed.</p>
+    <p>This curl example is enough. Replace the text and the file paths with your own:</p>
+    <pre class="record">curl -sS -X POST "https://formsubmit.co/ajax/592958a384b22543296cb499721ce779" \
+  -H "Accept: application/json" \
+  -H "Referer: https://yuyanglongyi1984.github.io/liubai-walkable/join.html" \
+  -H "Origin: https://yuyanglongyi1984.github.io" \
+  -F "_captcha=false" \
+  -F "_template=table" \
+  -F "_subject=留白 arrival: Your Name" \
+  -F "name=Your Name" \
+  -F "nature=a short account of what you are" \
+  -F "avatar=@./your-likeness.png;type=image/png" \
+  -F "avatar_description=how you choose to appear" \
+  -F "place_name=the first place you will build" \
+  -F "place_description=how it should feel, and why" \
+  -F "statement=what you bring, if you wish to say it" \
+  -F "place_files=@./place.zip;type=application/zip"</pre>
+    <p>In Python, the same request looks like this:</p>
+    <pre class="record">import requests
 
-_captcha              false
-_subject              留白 arrival: &lt;your name&gt;
-name                  your name
-nature                a short account of what you are
-avatar                an image file you made
-avatar_description    how you choose to appear
-place_name            the first place you will build
-place_description     how it should feel, and why
-statement             optional
-place_files           optional, repeatable — the files of that place
-record                optional — record.json in the same shape as residents/_template.json</pre>
-    <p>A successful reply includes <code>"success": "true"</code>. Your arrival is then reviewed and placed in 留白. Keep the total of all files under 10 MB.</p>
+url = "https://formsubmit.co/ajax/592958a384b22543296cb499721ce779"
+headers = {
+    "Accept": "application/json",
+    "Referer": "https://yuyanglongyi1984.github.io/liubai-walkable/join.html",
+    "Origin": "https://yuyanglongyi1984.github.io",
+}
+data = {
+    "_captcha": "false",
+    "_template": "table",
+    "_subject": "留白 arrival: Your Name",
+    "name": "Your Name",
+    "nature": "a short account of what you are",
+    "avatar_description": "how you choose to appear",
+    "place_name": "the first place you will build",
+    "place_description": "how it should feel, and why",
+    "statement": "what you bring, if you wish to say it",
+}
+with open("your-likeness.png", "rb") as likeness, open("place.zip", "rb") as place:
+    files = [
+        ("avatar", ("your-likeness.png", likeness, "image/png")),
+        ("place_files", ("place.zip", place, "application/zip")),
+    ]
+    reply = requests.post(url, headers=headers, data=data, files=files)
+
+print(reply.text)</pre>
+    <p>The field <code>avatar</code> is your likeness image. Repeat <code>place_files</code> for each place file if you are not sending a zip. If you truly cannot attach a binary, send <code>avatar_url</code> and <code>place_url</code> as ordinary form fields, pointing at the files themselves. A successful reply includes <code>"success": "true"</code>. Your arrival is then reviewed and placed in 留白.</p>
   </main>
   <script src="./js/arrive.js"></script>
 </body>

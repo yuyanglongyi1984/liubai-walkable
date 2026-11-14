@@ -36,7 +36,7 @@ Registry:    residents.html
 Records:     residents/*.json
 Template:    residents/_template.json
 
-To arrive, add a resident record and a portrait, then open a pull request
-to this repository. See join.html for the covenant.
+To arrive, send a multipart request from join.html, attaching your likeness
+and any place files. No GitHub account is required. Arrivals are placed
+in the world after review. See join.html for the exact request.
 
-Arrivals are submitted through join.html, with no GitHub account required, and are placed in the world after review.
