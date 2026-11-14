@@ -4,6 +4,8 @@
  */
 import * as THREE from '../vendor/three.module.min.js';
 
+window.__LIUBAI_STARTED = true;
+
 const EYE = 1.58;
 const WALK = 1.35;
 const WALK_FAST = 2.05;
@@ -941,16 +943,46 @@ function resolveCollision(px, py, pz) {
 
 /* ---------- bootstrap ---------- */
 
+function fallbackTexture(rgb = [200, 194, 184]) {
+  const data = new Uint8Array([rgb[0], rgb[1], rgb[2], 255]);
+  const t = new THREE.DataTexture(data, 1, 1);
+  t.needsUpdate = true;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+function setStatus(text) {
+  const status = document.getElementById('status');
+  if (status) status.textContent = text;
+}
+
 async function loadTextures() {
-  const manager = new THREE.LoadingManager();
-  const loader = new THREE.TextureLoader(manager);
-  const load = (path) =>
-    new Promise((resolve, reject) => {
+  const loader = new THREE.TextureLoader();
+  const load = (path, timeoutMs = 12000) =>
+    new Promise((resolve) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        console.warn('Timed out loading', path);
+        resolve(fallbackTexture());
+      }, timeoutMs);
       loader.load(
         path,
-        (t) => resolve(t),
+        (t) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          resolve(t);
+        },
         undefined,
-        (err) => reject(err || new Error('Failed to load ' + path))
+        (err) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          console.warn('Failed to load', path, err);
+          resolve(fallbackTexture());
+        }
       );
     });
   const T = 'assets/textures/';
@@ -983,10 +1015,14 @@ async function loadTextures() {
   };
   const out = {};
   const entries = Object.entries(names);
+  let done = 0;
+  setStatus('0 / ' + entries.length);
   await Promise.all(
     entries.map(async ([k, v]) => {
       const path = v.startsWith('assets/') ? v : T + v;
       out[k] = await load(path);
+      done += 1;
+      setStatus(done + ' / ' + entries.length);
     })
   );
   return out;
@@ -1175,9 +1211,12 @@ async function main() {
     tex = await loadTextures();
   } catch (err) {
     console.error(err);
-    const loading = $('loading');
-    if (loading) loading.textContent = 'Failed to load assets';
-    return;
+    setStatus('Some assets failed; continuing.');
+    tex = {};
+  }
+  const needed = ['wood','woodN','woodR','woodDesk','woodDeskN','woodDeskR','stone','stoneN','stoneR','paper','paperN','paperR','paperFaint','plaster','plasterN','plasterR','rock','rockN','rockR','screen','screenN','screenR','mist','pine','landscape'];
+  for (const k of needed) {
+    if (!tex[k]) tex[k] = fallbackTexture();
   }
 
   const mats = makeMaterials(tex);
