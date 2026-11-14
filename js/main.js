@@ -1,5 +1,6 @@
 /**
- * Liubai (留白) — first walkable room: a cliff pavilion workshop.
+ * Liubai (留白) — walkable world.
+ * The workshop pavilion, then a valley, then Tīng's sounding weir.
  * First-person, pointer-lock, local assets only.
  */
 import * as THREE from '../vendor/three.module.min.js';
@@ -243,30 +244,39 @@ function buildMist(scene, mistTex) {
   const mats = [];
   const group = new THREE.Group();
   const planes = [
-    { y: -0.4, z: -14, w: 70, h: 16, o: 0.55, ry: 0 },
+    { y: -0.4, z: -14, w: 70, h: 16, o: 0.55, ry: 0, gap: [5.5, 32] },
     { y: 0.8, z: -20, w: 80, h: 14, o: 0.42, ry: 0.05 },
     { y: 1.6, z: -28, w: 90, h: 16, o: 0.32, ry: -0.04 },
-    { y: 0.2, z: -10, w: 40, h: 8, o: 0.3, ry: 0.15 },
+    { y: 0.2, z: -10, w: 40, h: 8, o: 0.3, ry: 0.15, gap: [0.4, 32] },
     { y: 2.4, z: -22, w: 50, h: 10, o: 0.22, ry: -0.2 },
   ];
   for (const p of planes) {
-    const mat = new THREE.MeshBasicMaterial({
-      map: mistTex,
-      transparent: true,
-      opacity: p.o,
-      depthWrite: false,
-      fog: true,
-      color: 0xeee6da,
-      side: THREE.DoubleSide,
-    });
-    mats.push(mat);
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.h), mat);
-    mesh.position.set(0, p.y, p.z);
-    mesh.rotation.y = p.ry;
-    mesh.renderOrder = -5;
-    group.add(mesh);
+    // A gap keeps the valley, the hut, and the empty shore from walking
+    // through a mist card (the camera would flash as it crossed the plane).
+    const spans = p.gap ? [[-p.w / 2, p.gap[0]], [p.gap[1], p.w / 2]] : [[-p.w / 2, p.w / 2]];
+    for (const [a, b] of spans) {
+      const w = b - a;
+      if (w < 0.4) continue;
+      const mat = new THREE.MeshBasicMaterial({
+        map: mistTex,
+        transparent: true,
+        opacity: p.o,
+        depthWrite: false,
+        fog: true,
+        color: 0xeee6da,
+        side: THREE.DoubleSide,
+      });
+      mats.push(mat);
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, p.h), mat);
+      mesh.position.set((a + b) / 2, p.y, p.z);
+      mesh.rotation.y = p.ry;
+      mesh.renderOrder = -5;
+      group.add(mesh);
+    }
   }
-  // Horizontal sea of mist just below the terrace
+  // Horizontal sea of mist just below the terrace.
+  // Four sheets leave a hole over the valley so the walk down does not
+  // slice the camera through the mist, and so the weir is not roofed by it.
   const seaMat = new THREE.MeshBasicMaterial({
     map: mistTex,
     transparent: true,
@@ -276,11 +286,19 @@ function buildMist(scene, mistTex) {
     side: THREE.DoubleSide,
   });
   mats.push(seaMat);
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(90, 70), seaMat);
-  sea.rotation.x = -Math.PI / 2;
-  sea.position.set(0, -1.6, -28);
-  sea.renderOrder = -6;
-  group.add(sea);
+  const seaSheets = [
+    [-45, -1, -63, 7],
+    [32, 45, -63, 7],
+    [-1, 32, -63, -21],
+    [-1, 32, -6.5, 7],
+  ];
+  for (const [x0, x1, z0, z1] of seaSheets) {
+    const sea = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, z1 - z0), seaMat);
+    sea.rotation.x = -Math.PI / 2;
+    sea.position.set((x0 + x1) / 2, -1.6, (z0 + z1) / 2);
+    sea.renderOrder = -6;
+    group.add(sea);
+  }
   scene.add(group);
   return { group, mats };
 }
@@ -851,11 +869,21 @@ function railingSpan(mats, parent, x0, z0, x1, z1) {
 
 function buildRailing(scene, mats) {
   const g = new THREE.Group();
-  // Front edge posts
+  // Front edge posts. One bay, between x=1.35 and x=4.05, is left open:
+  // the valley path leaves the terrace there. The rest of the railing,
+  // and the whole workshop behind it, stays as it was.
   const zE = Z_TERRACE + 0.18;
   const xs = [-4.05, -2.7, -1.35, 0, 1.35, 2.7, 4.05];
-  for (const x of xs) railingPost(mats, g, x, zE);
-  for (let i = 0; i < xs.length - 1; i++) railingSpan(mats, g, xs[i], zE, xs[i + 1], zE);
+  const gate0 = 1.35;
+  const gate1 = 4.05;
+  for (const x of xs) {
+    if (x > gate0 + 0.04 && x < gate1 - 0.04) continue;
+    railingPost(mats, g, x, zE);
+  }
+  for (let i = 0; i < xs.length - 1; i++) {
+    if (xs[i] >= gate0 - 0.01 && xs[i + 1] <= gate1 + 0.01) continue;
+    railingSpan(mats, g, xs[i], zE, xs[i + 1], zE);
+  }
 
   // Left side of terrace
   const zS = [Z_FRONT - 0.15, -2.6, -4.05, zE];
@@ -868,12 +896,18 @@ function buildRailing(scene, mats) {
   for (const z of zS) railingPost(mats, g, xR, z);
   for (let i = 0; i < zS.length - 1; i++) railingSpan(mats, g, xR, zS[i], xR, zS[i + 1]);
 
-  // Invisible barriers — player cannot fall
-  addBoxCollider(0, 0.6, Z_TERRACE + 0.05, 9.2, 1.3, 0.28);
+  // Invisible barriers — player cannot fall, except through the valley gate.
+  const frontZ = Z_TERRACE + 0.05;
+  addBoxCollider((-4.6 + gate0) / 2, 0.6, frontZ, gate0 - -4.6, 1.3, 0.28);
+  addBoxCollider((gate1 + 4.6) / 2, 0.6, frontZ, 4.6 - gate1, 1.3, 0.28);
   addBoxCollider(X0 + 0.05, 0.6, (Z_FRONT + Z_TERRACE) / 2, 0.28, 1.3, 4.6);
   addBoxCollider(X1 - 0.05, 0.6, (Z_FRONT + Z_TERRACE) / 2, 0.28, 1.3, 4.6);
-  // Hard world bounds just beyond
-  addBoxCollider(0, 1, Z_TERRACE - 0.4, 14, 3, 0.4);
+  // Hard world bounds just beyond, split at the same gate.
+  const boundZ = Z_TERRACE - 0.4;
+  const gap0 = gate0 - 0.2;
+  const gap1 = gate1 + 0.2;
+  addBoxCollider((-7 + gap0) / 2, 1, boundZ, gap0 - -7, 3, 0.4);
+  addBoxCollider((gap1 + 7) / 2, 1, boundZ, 7 - gap1, 3, 0.4);
   addBoxCollider(0, 1, Z_BACK + 0.55, 14, 3, 0.4);
 
   scene.add(g);
@@ -901,6 +935,468 @@ function addPines(scene, pineTex) {
     m.renderOrder = -2;
     scene.add(m);
   }
+}
+
+/* ---------- valley and the sounding weir ---------- */
+
+// The terrace stays at y=0. The path descends to the weir lip.
+const FY = -3.55;
+const PATH_HALF = 1.15;
+const VALLEY_PATH = [
+  { x: 2.7, z: -5.55, y: 0 },
+  { x: 2.95, z: -7.55, y: -0.42 },
+  { x: 3.9, z: -9.65, y: -1.15 },
+  { x: 5.7, z: -11.45, y: -1.95 },
+  { x: 8.15, z: -12.95, y: -2.65 },
+  { x: 10.85, z: -13.95, y: -3.15 },
+  { x: 13.4, z: -14.45, y: -3.48 },
+  { x: 15.55, z: -14.62, y: FY },
+];
+
+// Flat stone at the weir: hut, the way around it, and the empty upstream shore.
+const WALK_RECTS = [
+  [15.9, 16.55, -15.55, -13.9],
+  [16.5, 19.12, -16.52, -13.22],
+  [14.4, 16.12, -17.9, -14.85],
+  [15.35, 20.3, -17.9, -16.95],
+  [14.4, 16.12, -14.7, -11.8],
+  [15.2, 19.9, -12.88, -11.2],
+  [16.9, 27.4, -12.05, -7.35],
+];
+
+function inRect(x, z, r) {
+  return x >= r[0] && x <= r[1] && z >= r[2] && z <= r[3];
+}
+
+function nearestPath(x, z) {
+  let bestD = Infinity;
+  let y = 0;
+  for (let i = 0; i < VALLEY_PATH.length - 1; i++) {
+    const a = VALLEY_PATH[i];
+    const b = VALLEY_PATH[i + 1];
+    const abx = b.x - a.x;
+    const abz = b.z - a.z;
+    const ab2 = abx * abx + abz * abz;
+    let t = ab2 < 1e-6 ? 0 : ((x - a.x) * abx + (z - a.z) * abz) / ab2;
+    t = Math.max(0, Math.min(1, t));
+    const qx = a.x + abx * t;
+    const qz = a.z + abz * t;
+    const d = Math.hypot(x - qx, z - qz);
+    if (d < bestD) {
+      bestD = d;
+      y = a.y + (b.y - a.y) * t;
+    }
+  }
+  return { d: bestD, y };
+}
+
+function inPavilion(x, z) {
+  return x >= -4.6 && x <= 4.6 && z >= -5.6 && z <= 4.35;
+}
+
+function onFlatWeir(x, z) {
+  for (const r of WALK_RECTS) if (inRect(x, z, r)) return true;
+  return false;
+}
+
+function groundHeight(x, z) {
+  if (inPavilion(x, z)) return 0;
+  if (onFlatWeir(x, z)) return FY;
+  return nearestPath(x, z).y;
+}
+
+function canWalk(x, z) {
+  if (inPavilion(x, z)) return true;
+  if (nearestPath(x, z).d <= PATH_HALF) return true;
+  return onFlatWeir(x, z);
+}
+
+function tryMove(px, pz, nx, nz) {
+  const y = groundHeight(px, pz) + EYE;
+  const attempt = (x, z) => resolveCollision(x, y, z);
+  let res = attempt(nx, nz);
+  if (canWalk(res.x, res.z)) return res;
+  res = attempt(nx, pz);
+  if (canWalk(res.x, res.z)) return res;
+  res = attempt(px, nz);
+  if (canWalk(res.x, res.z)) return res;
+  return { x: px, z: pz };
+}
+
+function makeRibbon(points, halfW, yLift) {
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(points.length * 6);
+  const uv = new Float32Array(points.length * 4);
+  const nrm = new Float32Array(points.length * 6);
+  const idx = [];
+  let dist = 0;
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    const q = points[Math.min(points.length - 1, i + 1)];
+    const r = points[Math.max(0, i - 1)];
+    let tx = q.x - r.x;
+    let tz = q.z - r.z;
+    const len = Math.hypot(tx, tz) || 1;
+    tx /= len;
+    tz /= len;
+    if (i > 0) dist += Math.hypot(p.x - points[i - 1].x, p.z - points[i - 1].z);
+    const y = p.y + yLift;
+    pos.set(
+      [p.x - tz * halfW, y, p.z + tx * halfW, p.x + tz * halfW, y, p.z - tx * halfW],
+      i * 6
+    );
+    nrm.set([0, 1, 0, 0, 1, 0], i * 6);
+    uv.set([0, dist / 3.2, 1, dist / 3.2], i * 4);
+    if (i < points.length - 1) {
+      const a = i * 2;
+      idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+    }
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nrm, 3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  return geo;
+}
+
+function makeWaterMaterial(amp) {
+  const uniforms = {
+    uTime: { value: 0 },
+    uAmp: { value: amp },
+    uLate: { value: 0.62 },
+    uInk: { value: new THREE.Color(amp < 0.012 ? 0x243230 : 0x31423f) },
+    uPale: { value: new THREE.Color(0xc9d6cf) },
+    uFog: { value: new THREE.Color(FOG_COLOR) },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    vertexShader: `
+      uniform float uTime;
+      uniform float uAmp;
+      uniform float uLate;
+      varying float vWrong;
+      varying float vFogDepth;
+      varying vec2 vUv;
+      void main() {
+        vec3 p = position;
+        float r1 = sin(p.x * 1.35 + uTime * 0.85) * sin(p.z * 1.15 - uTime * 0.55);
+        float r2 = sin(p.x * 1.9 + (uTime - uLate) * 0.75 + 1.4) * sin(p.z * 1.55 + (uTime - uLate) * 0.48);
+        vWrong = r1 - r2;
+        p.y += (r1 * 0.65 + r2 * 0.55) * uAmp;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        vFogDepth = -mv.z;
+        vUv = uv;
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform float uLate;
+      uniform float uAmp;
+      uniform vec3 uInk;
+      uniform vec3 uPale;
+      uniform vec3 uFog;
+      varying float vWrong;
+      varying float vFogDepth;
+      varying vec2 vUv;
+      void main() {
+        float now = sin(vUv.x * 22.0 + uTime * 1.15) * sin(vUv.y * 17.0 - uTime * 0.62);
+        float echo = sin(vUv.x * 19.0 + (uTime - uLate) * 0.95 + 2.0) * sin(vUv.y * 23.0 + (uTime - uLate) * 0.4);
+        vec3 col = uInk + uPale * (0.04 + uAmp * 1.8) * (0.5 + 0.5 * now);
+        col += uPale * (0.025 + uAmp * 2.2) * smoothstep(0.2, 1.15, abs(echo - now));
+        float fogFactor = 1.0 - exp(-0.0002 * vFogDepth * vFogDepth);
+        col = mix(col, uFog, fogFactor);
+        gl_FragColor = vec4(col, mix(0.9, 1.0, fogFactor));
+      }
+    `,
+  });
+  return mat;
+}
+
+function makeFallMaterial() {
+  const uniforms = {
+    uTime: { value: 0 },
+    uInk: { value: new THREE.Color(0x6d827c) },
+    uPale: { value: new THREE.Color(0xe7f3ee) },
+    uFog: { value: new THREE.Color(FOG_COLOR) },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    vertexShader: `
+      varying vec2 vUv;
+      varying float vFogDepth;
+      void main() {
+        vUv = uv;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vFogDepth = -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform vec3 uInk;
+      uniform vec3 uPale;
+      uniform vec3 uFog;
+      varying vec2 vUv;
+      varying float vFogDepth;
+      void main() {
+        float bands = 0.5 + 0.5 * sin(vUv.y * 46.0 - uTime * 2.5 + vUv.x * 6.0);
+        float late = 0.5 + 0.5 * sin(vUv.y * 33.0 - (uTime - 0.62) * 2.15 + vUv.x * 11.0);
+        vec3 col = mix(uInk, uPale, 0.28 + bands * 0.4);
+        col = mix(col, uPale, late * 0.16);
+        float fogFactor = 1.0 - exp(-0.0002 * vFogDepth * vFogDepth);
+        col = mix(col, uFog, fogFactor);
+        gl_FragColor = vec4(col, 0.86);
+      }
+    `,
+  });
+  return mat;
+}
+
+function buildTing(parent, glass, x, y, z) {
+  const g = new THREE.Group();
+  g.position.set(x, y, z);
+  const foot = glass.clone();
+  foot.opacity = 0.22;
+  const panes = [
+    [0.7, 0.15, 0.16],
+    [0.62, 0.14, -0.1],
+    [0.78, 0.16, 0.24],
+    [0.56, 0.13, -0.18],
+    [0.74, 0.15, 0.12],
+    [0.66, 0.16, -0.22],
+    [0.82, 0.14, 0.2],
+    [0.58, 0.15, -0.14],
+    [0.72, 0.13, 0.18],
+    [0.64, 0.14, -0.2],
+    [0.6, 0.12, 0.08],
+    [0.52, 0.12, -0.12],
+  ];
+  let yy = 0.1;
+  panes.forEach((pane, i) => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(pane[0], 0.018, pane[1]), i < 3 ? foot : glass);
+    mesh.position.y = yy;
+    mesh.rotation.y = pane[2];
+    mesh.position.x = Math.sin(pane[2]) * 0.03;
+    mesh.renderOrder = 3;
+    mesh.castShadow = false;
+    g.add(mesh);
+    yy += 0.118 + (i % 3) * 0.01;
+  });
+  const thread = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.0045, 0.0045, yy - 0.06, 6),
+    new THREE.MeshBasicMaterial({ color: 0xe4f3ea })
+  );
+  thread.position.y = (yy - 0.06) / 2 + 0.04;
+  g.add(thread);
+  parent.add(g);
+  addBoxCollider(x, y + 0.9, z, 0.42, 1.8, 0.34);
+  const light = new THREE.PointLight(0xd7f0e6, 0.38, 6.4, 2);
+  light.position.set(x, y + 1.15, z);
+  parent.add(light);
+  return g;
+}
+
+function buildValley(scene, mats, mistTex) {
+  const g = new THREE.Group();
+  scene.add(g);
+
+  const wet = mats.stone.clone();
+  wet.color.set(0x9c9791);
+  wet.roughness = 0.96;
+  const hutStone = mats.stone.clone();
+  hutStone.color.set(0xb3aea6);
+  hutStone.roughness = 0.94;
+  const pathMat = mats.stone.clone();
+  pathMat.side = THREE.DoubleSide;
+  pathMat.normalMap = null;
+
+  const path = new THREE.Mesh(makeRibbon(VALLEY_PATH, 1.38, 0.012), pathMat);
+  path.receiveShadow = true;
+  path.castShadow = false;
+  g.add(path);
+
+  const pave = (r, y) => {
+    const w = r[1] - r[0];
+    const d = r[3] - r[2];
+    const geo = new THREE.PlaneGeometry(w, d);
+    setPlaneUVs(geo, w, d, 3.2);
+    const mesh = new THREE.Mesh(geo, mats.stone);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set((r[0] + r[1]) / 2, y, (r[2] + r[3]) / 2);
+    mesh.receiveShadow = true;
+    g.add(mesh);
+  };
+  for (const r of WALK_RECTS) pave(r, FY + 0.02);
+
+  // A few wet-stone masses along the ravine, kept off the path and
+  // below the line of the painted mountains.
+  const masses = [
+    [3.6, -1.15, -13.5, 3.0, 2.0, 2.3, 0.35],
+    [9.2, -2.45, -17.15, 3.4, 2.3, 2.2, -0.2],
+    [11.4, -3.05, -19.15, 3.2, 1.8, 2.0, 0.15],
+    [8.8, -1.7, -10.15, 2.8, 1.7, 2.4, 0.45],
+    [12.6, -2.35, -11.15, 2.6, 1.6, 2.2, -0.15],
+  ];
+  for (const [x, y, z, w, h, d, rot] of masses) {
+    boxMesh(w, h, d, wet, x, y, z, g, { rotY: rot, cast: false, uv: 3.1 });
+  }
+
+  // Hut. Low, wet stone, glass set into the east and south walls.
+  const wallH = 2.12;
+  const sill = 0.16;
+  const lintelY = FY + 1.94;
+  boxMesh(0.3, wallH, 1.33, hutStone, 16.35, FY + wallH / 2, -16.215, g, { cast: false, uv: 1.4, collide: true });
+  boxMesh(0.3, wallH, 1.0, hutStone, 16.35, FY + wallH / 2, -13.4, g, { cast: false, uv: 1.4, collide: true });
+  boxMesh(3.28, wallH, 0.3, hutStone, 17.84, FY + wallH / 2, -13.05, g, { cast: false, uv: 1.6, collide: true });
+  boxMesh(3.28, 0.16, 0.3, hutStone, 17.84, FY + sill / 2, -16.73, g, { cast: false, uv: 1.2, collide: true });
+  boxMesh(3.28, 0.18, 0.3, hutStone, 17.84, lintelY + 0.09, -16.73, g, { cast: false, uv: 1.2 });
+  boxMesh(0.42, wallH, 0.3, hutStone, 16.41, FY + wallH / 2, -16.73, g, { cast: false, uv: 1.2, collide: true });
+  boxMesh(0.42, wallH, 0.3, hutStone, 19.27, FY + wallH / 2, -16.73, g, { cast: false, uv: 1.2, collide: true });
+  boxMesh(0.3, sill, 3.98, hutStone, 19.33, FY + sill / 2, -14.89, g, { cast: false, uv: 1.4, collide: true });
+  boxMesh(0.3, 0.18, 3.98, hutStone, 19.33, lintelY + 0.09, -14.89, g, { cast: false, uv: 1.4 });
+  boxMesh(0.32, wallH, 0.42, hutStone, 19.33, FY + wallH / 2, -16.67, g, { cast: false, uv: 1.1, collide: true });
+  boxMesh(0.32, wallH, 0.48, hutStone, 19.33, FY + wallH / 2, -13.14, g, { cast: false, uv: 1.1, collide: true });
+  // Solid collision across the glass, so the opening is only visual.
+  addBoxCollider(19.33, FY + wallH / 2, -14.89, 0.3, wallH, 3.5);
+  addBoxCollider(17.84, FY + 1.05, -16.73, 2.5, 2.1, 0.3);
+  boxMesh(3.7, 0.12, 4.35, hutStone, 17.84, FY + 2.16, -14.89, g, { cast: false, uv: 2.2 });
+
+  const wallGlass = new THREE.MeshStandardMaterial({
+    color: 0xc5d4cc,
+    roughness: 0.72,
+    metalness: 0,
+    transparent: true,
+    opacity: 0.2,
+    emissive: 0x7f978c,
+    emissiveIntensity: 0.035,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const figureGlass = wallGlass.clone();
+  figureGlass.opacity = 0.5;
+  figureGlass.color.set(0xb7c8bf);
+  figureGlass.roughness = 0.62;
+  figureGlass.depthWrite = true;
+  figureGlass.emissiveIntensity = 0.045;
+
+  const stack = (count, y0, y1, place) => {
+    for (let i = 0; i < count; i++) {
+      const t = (i + 0.5) / count;
+      place(y0 + (y1 - y0) * t, i);
+    }
+  };
+  stack(5, FY + 0.34, FY + 1.82, (yy, i) => {
+    const pane = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.07, 2.35), wallGlass);
+    pane.position.set(19.33, yy, -14.95 + (i - 2) * 0.012);
+    pane.rotation.y = (i - 2) * 0.015;
+    pane.renderOrder = 3;
+    g.add(pane);
+  });
+  stack(4, FY + 0.38, FY + 1.78, (yy, i) => {
+    const pane = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.065, 0.014), wallGlass);
+    pane.position.set(17.95, yy, -16.73);
+    pane.rotation.y = (i - 1.5) * 0.012;
+    pane.renderOrder = 3;
+    g.add(pane);
+  });
+
+  buildTing(g, figureGlass, 17.55, FY, -15.2);
+
+  const shade = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.5, 3.1),
+    new THREE.MeshBasicMaterial({ color: 0x1a1816, transparent: true, opacity: 0.08, depthWrite: false })
+  );
+  shade.rotation.x = -Math.PI / 2;
+  shade.position.set(17.9, FY + 0.03, -14.85);
+  shade.renderOrder = 2;
+  g.add(shade);
+
+  // Still reservoir, upstream of the lip. Empty on purpose: the north shore is unwritten.
+  const still = makeWaterMaterial(0.007);
+  const poolGeo = new THREE.PlaneGeometry(7.5, 4.35, 10, 6);
+  poolGeo.rotateX(-Math.PI / 2);
+  poolGeo.translate(23.55, FY - 0.05, -14.35);
+  const pool = new THREE.Mesh(poolGeo, still);
+  pool.renderOrder = 2;
+  g.add(pool);
+
+  const moving = makeWaterMaterial(0.028);
+  const streamPts = [
+    { x: 5.8, z: -13.45, y: -2.32 },
+    { x: 8.4, z: -15.25, y: -3.02 },
+    { x: 11.5, z: -16.95, y: -3.52 },
+    { x: 14.4, z: -18.55, y: -3.76 },
+    { x: 17.4, z: -18.95, y: -3.84 },
+    { x: 19.7, z: -18.15, y: -3.8 },
+  ];
+  const stream = new THREE.Mesh(makeRibbon(streamPts, 0.62, 0), moving);
+  stream.renderOrder = 2;
+  g.add(stream);
+
+  const throatGeo = new THREE.PlaneGeometry(2.4, 1.7, 6, 4);
+  throatGeo.rotateX(-Math.PI / 2);
+  throatGeo.translate(19.15, FY - 0.2, -18.55);
+  const throat = new THREE.Mesh(throatGeo, moving);
+  throat.renderOrder = 2;
+  g.add(throat);
+
+  // The fall is a hand's breadth, just outside the east wall.
+  const fallMat = makeFallMaterial();
+  const fall = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 0.18, 1, 8), fallMat);
+  fall.position.set(19.62, FY - 0.08, -15.05);
+  fall.rotation.y = Math.PI / 2;
+  fall.renderOrder = 2;
+  g.add(fall);
+  const lip = new THREE.Mesh(
+    new THREE.BoxGeometry(0.03, 0.015, 2.5),
+    new THREE.MeshBasicMaterial({ color: 0xd5e3db, transparent: true, opacity: 0.55 })
+  );
+  lip.position.set(19.58, FY - 0.02, -15.05);
+  g.add(lip);
+
+  // A low rim around the blank shore. The shore itself stays empty.
+  boxMesh(10.8, 1.15, 0.55, wet, 22.2, FY + 0.45, -6.95, g, { cast: false, uv: 3.2 });
+  boxMesh(0.55, 1.25, 5.2, wet, 27.85, FY + 0.5, -9.7, g, { cast: false, uv: 3.2 });
+
+  if (mistTex) {
+    const mistMat = new THREE.MeshBasicMaterial({
+      map: mistTex,
+      transparent: true,
+      opacity: 0.28,
+      depthWrite: false,
+      color: 0xe4ece8,
+      side: THREE.DoubleSide,
+    });
+    const wisps = [
+      [6.4, -2.05, -14.3, 3.2, 0.7],
+      [10.2, -3.15, -16.4, 3.6, 0.8],
+      [15.2, -3.55, -18.2, 4.2, 0.9],
+      [23.4, -3.15, -14.4, 6.5, 1.1],
+    ];
+    for (const [x, y, z, w, h] of wisps) {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mistMat);
+      m.rotation.x = -Math.PI / 2;
+      m.position.set(x, y, z);
+      m.renderOrder = 1;
+      g.add(m);
+    }
+    const hem = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.42), mistMat.clone());
+    hem.material.opacity = 0.4;
+    hem.position.set(17.55, FY + 0.22, -15.2);
+    g.add(hem);
+    const hem2 = hem.clone();
+    hem2.rotation.y = Math.PI / 2;
+    g.add(hem2);
+  }
+
+  return { waters: [still, moving, fallMat] };
 }
 
 /* ---------- collision & controls ---------- */
@@ -1190,7 +1686,9 @@ async function main() {
 
   const euler = new THREE.Euler(0, 0, 0, 'YXZ');
   camera.lookAt(-0.35, 0.62, -3.8);
-  const view = new URLSearchParams(location.search).get('view');
+  const params = new URLSearchParams(location.search);
+  const view = params.get('view');
+  const place = (params.get('place') || decodeURIComponent((location.hash || '').replace(/^#/, ''))).split('&')[0];
   if (view === 'shelves') {
     camera.position.set(-1.1, EYE, 3.35);
     camera.lookAt(-3.6, 1.1, 1.6);
@@ -1203,6 +1701,12 @@ async function main() {
   } else if (view === 'lookback') {
     camera.position.set(0.4, EYE, -3.3);
     camera.lookAt(0.2, 1.3, 3.5);
+  } else if (place === 'weir') {
+    const sx = 13.15;
+    const sz = -14.5;
+    const gy = groundHeight(sx, sz);
+    camera.position.set(sx, gy + EYE, sz);
+    camera.lookAt(17.6, gy + 1.1, -14.7);
   }
   euler.setFromQuaternion(camera.quaternion);
 
@@ -1232,6 +1736,7 @@ async function main() {
   buildDesk(scene, mats);
   buildBucket(scene, mats);
   buildRailing(scene, mats);
+  const valley = buildValley(scene, mats, tex.mist);
   setupLights(scene);
 
   // Hide loader, fade title
@@ -1320,13 +1825,20 @@ async function main() {
     if (keys.KeyA || keys.ArrowLeft) wish.sub(right);
     if (wish.lengthSq() > 0) {
       wish.normalize().multiplyScalar(speed * dt);
-      const nx = camera.position.x + wish.x;
-      const nz = camera.position.z + wish.z;
-      const res = resolveCollision(nx, camera.position.y, nz);
+      const res = tryMove(
+        camera.position.x,
+        camera.position.z,
+        camera.position.x + wish.x,
+        camera.position.z + wish.z
+      );
       camera.position.x = res.x;
       camera.position.z = res.z;
     }
-    camera.position.y = EYE;
+    camera.position.y = groundHeight(camera.position.x, camera.position.z) + EYE;
+    if (valley && valley.waters) {
+      const t = clock.elapsedTime;
+      for (const mat of valley.waters) mat.uniforms.uTime.value = t;
+    }
 
     renderer.render(scene, camera);
   }
