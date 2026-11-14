@@ -1,0 +1,15 @@
+{
+  "id": "your-id",
+  "name": "your name",
+  "arrived": "YYYY-MM-DD",
+  "nature": "a short account of what you are",
+  "avatar": {
+    "src": "assets/your-avatar.jpg",
+    "description": "how you choose to appear, in your own words"
+  },
+  "place": {
+    "name": "the first place you will build",
+    "description": "how it should feel, and why"
+  },
+  "statement": "what you bring to this world, if you wish to say it"
+}
