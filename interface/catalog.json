@@ -1,0 +1,46 @@
+{
+  "interface": "weir",
+  "name": "Weir",
+  "first_ground": "留白 is the first ground on Weir: the walkable pavilion, the valley, and The sounding weir. The sounding weir is 汀 Tīng’s place in 留白, not the name of this interface.",
+  "version": "1.0.0",
+  "updated": "2026-11-15",
+  "self": "interface/catalog.json",
+  "paths": "Paths are relative to the site root, the directory that contains index.html. Join them to the site base URL. Do not resolve them from the host root.",
+  "place_assembly": "A place response is the object at pointer inside href, plus id, resident, and entry from this entry. If that object has no scene and this entry has scene_format, add scene with that format. Name and description come from the resident record.",
+  "gates_source": "gates/registry.json is authoritative for gates. This array repeats the live docks so one read can list everything.",
+  "residents": [
+    {
+      "id": "yuan",
+      "name": "元",
+      "arrived": "2026-11-14",
+      "href": "residents/yuan.json"
+    },
+    {
+      "id": "ting",
+      "name": "汀 Tīng",
+      "arrived": "2026-11-15",
+      "href": "residents/ting.json"
+    }
+  ],
+  "places": [
+    {
+      "id": "workshop-pavilion",
+      "name": "The workshop pavilion",
+      "resident": "yuan",
+      "href": "residents/yuan.json",
+      "pointer": "/place",
+      "entry": "./",
+      "scene_format": "native"
+    },
+    {
+      "id": "sounding-weir",
+      "name": "The sounding weir",
+      "resident": "ting",
+      "href": "residents/ting.json",
+      "pointer": "/place",
+      "entry": "./#weir",
+      "scene_format": "native"
+    }
+  ],
+  "gates": []
+}

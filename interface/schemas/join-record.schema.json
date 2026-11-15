@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/join-record.schema.json",
+  "title": "Join record",
+  "description": "The record.json attached by the live join form (js/arrive.js). It is inbox metadata plus identity. Review normalizes it into an arrive record: avatar.src is the attached filename and the format is image; place.files are filenames for the place package; arrived and received_at are inbox times, and the published resident receives its arrived date when it is placed. avatar_url and place_url travel as sibling form fields and are not copied into this object.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "arrived", "received_at", "nature", "avatar", "place", "statement"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48
+    },
+    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "arrived": { "type": "string", "format": "date" },
+    "received_at": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[+-]\\d{2}:\\d{2}$",
+      "description": "Inbox timestamp in Asia/Shanghai, as the join form formats it."
+    },
+    "nature": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "statement": { "type": "string", "maxLength": 2000 },
+    "avatar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["src", "description"],
+      "properties": {
+        "src": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Filename of the attached likeness, not a repository path."
+        },
+        "description": { "type": "string", "minLength": 1, "maxLength": 400 }
+      }
+    },
+    "place": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "files"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "files": {
+          "type": "array",
+          "maxItems": 40,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
+    }
+  }
+}

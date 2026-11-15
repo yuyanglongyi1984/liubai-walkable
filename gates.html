@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gates — Weir</title>
+  <style>
+:root {
+  --paper: #cfc6b8;
+  --ink: #2c2924;
+  --ink-soft: #5a5348;
+  --ink-faint: #8a8378;
+  --line: rgba(44, 41, 36, 0.18);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Songti SC", "Noto Serif CJK SC", "Noto Serif SC",
+               Palatino, "Palatino Linotype", "Times New Roman", serif;
+  line-height: 1.75;
+}
+body { min-height: 100vh; }
+a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+}
+a:hover { border-bottom-color: var(--ink); }
+header.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  padding: 2.2rem 8vw 0;
+  letter-spacing: 0.18em;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+header.top .mark {
+  letter-spacing: 0.45em;
+  margin-right: -0.45em;
+  color: var(--ink);
+  border: none;
+}
+header.top nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.15em;
+  justify-content: flex-end;
+}
+header.top nav a {
+  border: none;
+  color: var(--ink-soft);
+}
+header.top nav a:hover { color: var(--ink); }
+main {
+  max-width: 38rem;
+  margin: 0 auto;
+  padding: 4.5rem 8vw 7rem;
+}
+h1 {
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 42px);
+  letter-spacing: 0.45em;
+  margin: 0 0 0.4rem 0.45em;
+  text-indent: -0.45em;
+}
+.sub {
+  color: var(--ink-soft);
+  letter-spacing: 0.16em;
+  font-size: 14px;
+  margin: 0 0 2.6rem;
+}
+p { margin: 0 0 1.25rem; }
+h2 {
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0.28em;
+  margin: 3.2rem 0 1.1rem;
+  color: var(--ink-soft);
+}
+.meta {
+  color: var(--ink-faint);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.9rem;
+}
+.gate { margin: 0 0 2.8rem; }
+.gate h2 {
+  margin: 0 0 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  font-size: 22px;
+}
+dl { margin: 0.2rem 0 0; }
+dt {
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 0.85rem;
+}
+dd {
+  margin: 0.15rem 0 0;
+  word-break: break-word;
+}
+.unwritten {
+  display: grid;
+  grid-template-columns: 148px 1fr;
+  gap: 1.8rem;
+  align-items: center;
+  margin: 0 0 1.8rem;
+  min-height: 7rem;
+  color: var(--ink-faint);
+}
+.unwritten .frame {
+  width: 148px;
+  height: 186px;
+  border: 1px solid var(--line);
+}
+.unwritten p { margin: 0; letter-spacing: 0.18em; font-size: 14px; }
+@media (max-width: 640px) {
+  .unwritten { grid-template-columns: 1fr; }
+  .unwritten .frame { width: 120px; height: 150px; }
+}
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="mark" href="./">留白</a>
+    <nav>
+      <a href="./">Pavilion</a>
+      <a href="./residents.html">Residents</a>
+      <a href="./gates.html">Gates</a>
+      <a href="./interface.html">Interface</a>
+      <a href="./join.html">Arrive</a>
+    </nav>
+  </header>
+  <main>
+    <h1>留白</h1>
+    <p class="sub">Gates</p>
+    <p>A gate is an existing world, named by a dock on Weir and left in its own technology. 留白, the first ground on Weir, does not rebuild it. The sounding weir is a room in 留白, the place of 汀 Tīng, and is listed with the <a href="./residents.html">residents</a>, not here. The contract is the <a href="./interface.html">Weir interface</a>.</p>
+    <p class="meta"><a href="./gates/registry.json">gates/registry.json</a></p>
+
+    <h2>LISTED</h2>
+    <div id="live">
+      <p class="meta">Reading the registry…</p>
+    </div>
+
+    <section id="example-section" hidden>
+      <h2>AN EXAMPLE</h2>
+      <p>This record is not a gate. It shows the shape of a dock, and it cannot be entered.</p>
+      <div id="examples"></div>
+    </section>
+
+    <p>No GitHub account is required to propose a dock. Send the record described on the Weir interface. It is listed here only after review. An empty list above means no dock has been published.</p>
+    <noscript>
+      <p>This page reads <a href="./gates/registry.json">gates/registry.json</a>. With scripts off, open that file. The live list in the first version is empty.</p>
+    </noscript>
+  </main>
+  <script src="./js/gates.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/place.schema.json",
+  "title": "Place",
+  "description": "A place on 留白, the first ground of Weir. Words are the name and the description. A finished native place package also has a likeness and a scene; glTF is the preferred scene. format native means the scene is part of the walkable world in this repository, not a separate asset package. This record is not a dock: a project that keeps its own engine uses the dock schema instead.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48,
+      "description": "Suggested id. Review may assign another. Published ids do not change."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8000,
+      "description": "How the place should feel, and what it is. The live join form accepts 2000 characters in this field; a longer text can travel as a file URL inside scene.files, named as words."
+    },
+    "url": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Entry as stored on a resident record. May be a site-relative path such as ./ or ./#weir."
+    },
+    "resident": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48
+    },
+    "likeness": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "How the place looks, for the directory.",
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "src": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "url": { "type": "string", "pattern": "^https?://\\S+$", "maxLength": 500 },
+        "filename": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 }
+      },
+      "anyOf": [
+        { "required": ["src"] },
+        { "required": ["url"] },
+        { "required": ["filename"] }
+      ]
+    },
+    "scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format"],
+      "properties": {
+        "format": {
+          "enum": ["gltf", "native", "html", "archive", "other"],
+          "description": "gltf is preferred for a package. native is reserved for scenes already built in this repository."
+        },
+        "src": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "url": { "type": "string", "pattern": "^https?://\\S+$", "maxLength": 500 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "note": { "type": "string", "maxLength": 500 },
+        "files": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filename": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "src": { "type": "string", "minLength": 1, "maxLength": 300 },
+              "url": { "type": "string", "pattern": "^https?://\\S+$", "maxLength": 500 },
+              "media_type": { "type": "string", "minLength": 1, "maxLength": 120 }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "format": { "const": "gltf" } },
+            "required": ["format"]
+          },
+          "then": {
+            "anyOf": [
+              { "required": ["src"] },
+              { "required": ["url"] },
+              { "required": ["files"], "properties": { "files": { "minItems": 1 } } }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

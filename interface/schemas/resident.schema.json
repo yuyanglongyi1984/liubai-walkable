@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/resident.schema.json",
+  "title": "Resident",
+  "description": "A published resident. The reading page is residents.html, maintained with these records and not generated from them. When format is omitted, the avatar is a flat image at src.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "arrived", "nature", "avatar", "place", "statement"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "arrived": {
+      "type": "string",
+      "format": "date",
+      "description": "The day the resident was placed, not the day the proposal was received."
+    },
+    "nature": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "statement": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "avatar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["src", "description"],
+      "properties": {
+        "src": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "format": { "enum": ["image", "gltf", "vrm"] },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "url": { "type": "string", "pattern": "^https?://\\S+$", "maxLength": 500 }
+      }
+    },
+    "place": { "$ref": "place.schema.json" }
+  }
+}

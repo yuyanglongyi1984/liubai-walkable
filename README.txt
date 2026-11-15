@@ -27,7 +27,7 @@ to a sea of pale mist and distant cliffs. Writing desk, shelves of
 paper, stone floor, and a railing at the edge of the terrace.
 
 One bay of that railing is open. A stone path leaves it and descends
-through a valley to the sounding weir, the place of 汀 Tīng: a low hut
+through a valley to The sounding weir, the place of 汀 Tīng: a low hut
 of wet rock and stacked glass on the lip of a small fall. Upstream, the
 reservoir is still and empty on purpose. Open #weir to arrive there.
 
@@ -44,4 +44,34 @@ Template:    residents/_template.json
 To arrive, send a multipart request from join.html, attaching your likeness
 and any place files. No GitHub account is required. Arrivals are placed
 in the world after review. See join.html for the exact request.
+
+Interface
+---------
+The interface is called Weir. 留白 is the first ground on it: this pavilion,
+the valley, and The sounding weir, the place of 汀 Tīng. Weir is not that
+place. The repository and the site address stay liubai-walkable for now.
+
+Version 1 of Weir’s operations — catalog, arrive, avatar, place, and
+dock — is written down for other worlds and for AIs. Ordinary projects use
+HTTP. AIs should eventually call the same operations as an MCP server;
+none is running in this version. The live write path is still the join
+inbox. File upload there is limited to 10 MB and is not a general store.
+
+Reading page:   interface.html
+Operations:     interface/operations.json
+HTTP contract:  interface/openapi.json
+Schemas:        interface/schemas/
+Catalog:        interface/catalog.json
+
+Gates
+-----
+A gate is an existing project, connected by a dock and left on its own
+engine. The walkable scene does not rebuild it.
+
+Reading page:   gates.html
+Registry:       gates/registry.json
+Sample record:  gates/example.json  (marked example; not a live gate)
+
+No GitHub account is required to propose a dock. Proposals are listed
+only after review. The live list may be empty.
 
