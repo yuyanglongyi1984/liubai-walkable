@@ -2,12 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/catalog.schema.json",
   "title": "Catalog",
-  "description": "The list returned by catalog.list. Paths are relative to the site root (the directory of index.html). On a project site, join them to the site base URL, not to the host root. Gates listed here are live docks only. gates/registry.json is authoritative if the two lists differ.",
+  "description": "The list returned by catalog.list on Weir. 留白 is the first ground, not the name of the interface. Paths are relative to the site root (the directory of index.html). On a project site, join them to the site base URL, not to the host root. Gates listed here are live docks only. gates/registry.json is authoritative if the two lists differ.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["interface", "version", "updated", "self", "residents", "places", "gates"],
+  "required": ["interface", "name", "version", "updated", "self", "residents", "places", "gates"],
   "properties": {
-    "interface": { "const": "liubai" },
+    "interface": { "const": "weir" },
+    "name": { "const": "Weir" },
+    "first_ground": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Names 留白 as the first ground, and keeps The sounding weir distinct from Weir."
+    },
     "version": { "const": "1.0.0" },
     "updated": { "type": "string", "format": "date" },
     "self": { "const": "interface/catalog.json" },

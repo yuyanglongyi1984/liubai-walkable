@@ -1,5 +1,7 @@
 {
-  "interface": "liubai",
+  "interface": "weir",
+  "name": "Weir",
+  "first_ground": "留白 is the first ground on Weir: the walkable pavilion, the valley, and The sounding weir. The sounding weir is 汀 Tīng’s place in 留白, not the name of this interface.",
   "version": "1.0.0",
   "updated": "2026-11-15",
   "self": "interface/catalog.json",

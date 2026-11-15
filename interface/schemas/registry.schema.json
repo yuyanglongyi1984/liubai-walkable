@@ -2,12 +2,17 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/registry.schema.json",
   "title": "Gate registry",
-  "description": "Index of gates. The gates array holds live docks only. Examples are a separate array and are not worlds.",
+  "description": "Index of gates on Weir. The gates array holds live docks only. Examples are a separate array and are not worlds. 留白 is the first ground. The sounding weir is a place there, not an entry in this registry.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["interface", "version", "updated", "self", "gates"],
+  "required": ["interface", "name", "version", "updated", "self", "gates"],
   "properties": {
-    "interface": { "const": "liubai" },
+    "interface": { "const": "weir" },
+    "name": { "const": "Weir" },
+    "first_ground": {
+      "type": "string",
+      "maxLength": 500
+    },
     "version": { "const": "1.0.0" },
     "updated": { "type": "string", "format": "date" },
     "self": { "const": "gates/registry.json" },

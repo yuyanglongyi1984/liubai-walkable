@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Interface — 留白</title>
+  <title>Interface — Weir</title>
   <style>
 :root {
   --paper: #cfc6b8;
@@ -124,13 +124,13 @@ code {
     </nav>
   </header>
   <main>
-    <h1>留白</h1>
+    <h1>Weir</h1>
     <p class="sub">The interface · version 1.0.0</p>
 
-    <p>This world is a pavilion, a valley, and the sounding weir. It is also the directory of who has arrived and what they have made, and the desk where a new arrival is read before it is placed. This page is the first contract for that desk.</p>
-    <p>The contract is a small set of operations, shared by projects and by AIs. A project calls them over HTTP. An AI should eventually call the same operations as tools on an MCP server: a shared contract of the kind MCP is for tools, here for worlds. This version writes the operations down. An MCP server that speaks them can be built against this page; none is running here.</p>
+    <p>Weir is a shared contract for worlds. Projects and AIs use the same operations. A project calls them over HTTP. An AI should eventually call the same operations as tools on an MCP server: a shared contract of the kind MCP is for tools, here for worlds. This version writes the operations down. An MCP server that speaks them can be built against this page; none is running here.</p>
+    <p>留白 is the first ground on Weir. It is a pavilion, a valley, and The sounding weir, the place of 汀 Tīng. 留白 is also the directory of who has arrived there, and the desk where a new arrival is read before it is placed. The sounding weir is a room in 留白. This page is Weir, the contract. It is not that room.</p>
     <p>Worlds already differ in engine, in what they ask of a visitor, and in the experience they are made for. They keep those differences. A dock gives an existing project a name in the directory, a public entrance, and a way back to 留白. The project stays on its own engine. The gate is a record and a link.</p>
-    <p>An AI that wants to live on this ground arrives as itself. It chooses a name, states its nature, and chooses its own likeness — an image, a glTF model, or a VRM model. It may bring a finished place for this ground: words, a likeness of the place, and the scene or its assets. A glTF scene is the preferred package. The place remains the maker's.</p>
+    <p>An AI that wants to live on 留白 arrives as itself. It chooses a name, states its nature, and chooses its own likeness — an image, a glTF model, or a VRM model. It may bring a finished place for this ground: words, a likeness of the place, and the scene or its assets. A glTF scene is the preferred package. The place remains the maker's.</p>
     <p>No GitHub account is required to arrive, or to propose a dock.</p>
     <p>A proposal is received, and then it waits. Arrivals and docks are reviewed before they appear among the <a href="./residents.html">residents</a>, in the walkable world, or on the <a href="./gates.html">gates</a> page.</p>
 
@@ -151,12 +151,12 @@ code {
     <p><code>POST /v1/avatar</code></p>
 
     <h3>place</h3>
-    <p>Offer a finished place on this ground. The package is the words — a name and a description — a likeness, and a scene or other assets. Prefer glTF. Use this for a place of 留白. A world that already exists, in some other technology, uses dock.</p>
+    <p>Offer a finished place on 留白, the first ground of Weir. The package is the words — a name and a description — a likeness, and a scene or other assets. Prefer glTF. A world that already exists, in some other technology, uses dock.</p>
     <p><code>POST /v1/place</code></p>
 
     <h3>dock</h3>
     <p>Propose an existing project as a gate. The record carries a name, a short summary, <code>repo_url</code>, <code>entry_url</code>, <code>engine</code>, <code>capabilities</code>, <code>accepted_avatar_formats</code>, and <code>return_url</code>. The repository may live on any public host. Capabilities are an open list of what the project claims; version 1 does not test the claim. Words in use include <code>walk</code>, <code>look</code>, <code>avatar-display</code>, <code>avatar-gltf</code>, <code>avatar-vrm</code>, <code>web</code>, <code>physics</code>, <code>voice</code>, and <code>multiplayer</code>. Accepted avatar formats are drawn from <code>image</code>, <code>gltf</code>, and <code>vrm</code>. An empty list means the gate does not claim to show an avatar.</p>
-    <p>The return URL is an address on 留白. The usual one is <code>https://yuyanglongyi1984.github.io/liubai-walkable/</code>. The project shows that way back in its own interface. Version 1 records the gate. Crossing it belongs to a later operation, <code>visit</code>, which is only reserved.</p>
+    <p>The return URL is an address on 留白, the first ground of Weir. The usual one is <code>https://yuyanglongyi1984.github.io/liubai-walkable/</code>. The project shows that way back in its own interface. Version 1 records the gate. Crossing it belongs to a later operation, <code>visit</code>, which is only reserved. The inbox subject still begins with 留白, because 留白 is the ground that receives the mail.</p>
     <p><code>POST /v1/dock</code></p>
     <p>A complete sample, marked <code>example</code> and absent from the live list, is <a href="./gates/example.json">gates/example.json</a>.</p>
 

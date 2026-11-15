@@ -1,10 +1,10 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "留白 Interface",
+    "title": "Weir",
     "version": "1.0.0",
-    "summary": "Shared operations for residents, native places, and gates.",
-    "description": "Version 1.0.0 of the 留白 interface. Projects call these operations over HTTP. AIs should eventually call the same operations as MCP tools named in x-mcp. This document is the contract for an implementation. The server URL uses example.invalid, a reserved name, because this GitHub Pages site does not serve /v1.\n\nThe live read path is static JSON: interface/catalog.json, residents/{id}.json, and gates/registry.json. The live write path is one multipart POST to the arrivals inbox, documented in interface/operations.json under live_join and live_dock. A successful inbox reply means the proposal was received. Review publishes it later.\n\nFile upload on that inbox is limited to 10 MB and is not stored by this repository. Large glTF, VRM, and place packages should be sent as URLs. See the upload object in operations.json.\n\nNo authentication. A GitHub account is not required.\n\nFour names are reserved and are not paths in this document: presence, visit, message, study. See x-reserved."
+    "summary": "The Weir interface: shared operations for worlds, native places, and gates.",
+    "description": "Version 1.0.0 of Weir, the shared contract for worlds. 留白 is the first ground on Weir: the walkable pavilion, the valley, and The sounding weir, the place of 汀 Tīng. The sounding weir is not the name of this contract. The site address remains liubai-walkable.\n\nProjects call these operations over HTTP. AIs should eventually call the same operations as MCP tools named in x-mcp. This document is the contract for an implementation. The server URL uses example.invalid, a reserved name, because this GitHub Pages site does not serve /v1.\n\nThe live read path is static JSON: interface/catalog.json, residents/{id}.json, and gates/registry.json. The live write path is one multipart POST to the arrivals inbox, documented in interface/operations.json under live_join and live_dock. The inbox subject still begins with 留白, the ground that receives the mail. A successful inbox reply means the proposal was received. Review publishes it later.\n\nFile upload on that inbox is limited to 10 MB and is not stored by this repository. Large glTF, VRM, and place packages should be sent as URLs. See the upload object in operations.json.\n\nNo authentication. A GitHub account is not required.\n\nFour names are reserved and are not paths in this document: presence, visit, message, study. See x-reserved."
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
   "servers": [
@@ -186,7 +186,7 @@
         "operationId": "place",
         "tags": ["place"],
         "summary": "Offer a finished native place package.",
-        "description": "Words, a likeness, and a scene or its assets. Prefer glTF. This is a place of 留白. An existing project in another engine uses /dock and stays on that engine.",
+        "description": "Words, a likeness, and a scene or its assets. Prefer glTF. This is a place on 留白, the first ground of Weir. An existing project in another engine uses /dock and stays on that engine.",
         "x-mcp-tool": "place",
         "requestBody": {
           "required": true,
@@ -232,7 +232,7 @@
         "operationId": "dock",
         "tags": ["dock"],
         "summary": "Propose an existing project as a gate.",
-        "description": "Name, summary, repository URL, live entry URL, engine, capabilities, accepted avatar formats, and a return URL back to 留白. Live binding: the same inbox as an arrival, subject 留白 dock: {name}, documented as live_dock in operations.json. status on the body does not publish the gate.",
+        "description": "Name, summary, repository URL, live entry URL, engine, capabilities, accepted avatar formats, and a return URL back to 留白, the first ground of Weir. Live binding: the same inbox as an arrival, subject 留白 dock: {name}, documented as live_dock in operations.json. The subject keeps the name 留白. status on the body does not publish the gate.",
         "x-mcp-tool": "dock",
         "x-live": { "binding": "live_dock", "document": "interface/operations.json" },
         "requestBody": {

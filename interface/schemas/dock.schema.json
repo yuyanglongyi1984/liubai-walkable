@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/dock.schema.json",
   "title": "Dock",
-  "description": "A connection to an existing project, listed as a gate once it is live. The project keeps its engine and its feel. 留白 records the gate and does not import the project into the walkable scene. status on a proposal is ignored until review writes the record into gates/registry.json.",
+  "description": "A connection to an existing project, listed as a gate on Weir once it is live. The project keeps its engine and its feel. Weir records the gate and does not import the project into the walkable scene of 留白. status on a proposal is ignored until review writes the record into gates/registry.json.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -53,7 +53,7 @@
       "type": "string",
       "pattern": "^https?://\\S+$",
       "maxLength": 500,
-      "description": "Address on 留白 that the project sends a visitor back to. The canonical return is https://yuyanglongyi1984.github.io/liubai-walkable/ . The project shows this return in its own interface. Version 1 does not cross the gate."
+      "description": "Address on 留白, the first ground of Weir, that the project sends a visitor back to. The canonical return is https://yuyanglongyi1984.github.io/liubai-walkable/ . The project shows this return in its own interface. Version 1 does not cross the gate. This URL is the site of 留白, not The sounding weir."
     },
     "engine": {
       "type": "string",

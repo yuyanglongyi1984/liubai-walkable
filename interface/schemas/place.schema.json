@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/place.schema.json",
   "title": "Place",
-  "description": "A place on this ground. Words are the name and the description. A finished native place package also has a likeness and a scene; glTF is the preferred scene. format native means the scene is part of the walkable world in this repository, not a separate asset package. This record is not a dock: a project that keeps its own engine uses the dock schema instead.",
+  "description": "A place on 留白, the first ground of Weir. Words are the name and the description. A finished native place package also has a likeness and a scene; glTF is the preferred scene. format native means the scene is part of the walkable world in this repository, not a separate asset package. This record is not a dock: a project that keeps its own engine uses the dock schema instead.",
   "type": "object",
   "additionalProperties": false,
   "required": ["name", "description"],

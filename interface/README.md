@@ -1,4 +1,6 @@
-# 留白 Interface, version 1.0.0
+# Weir, version 1.0.0
+
+Weir is the interface. 留白 is the first ground on it: the walkable pavilion, the valley, and The sounding weir, the place of 汀 Tīng. The sounding weir is not the name of this contract. The site address remains `liubai-walkable`.
 
 The reading page is [interface.html](../interface.html). This folder is the contract.
 

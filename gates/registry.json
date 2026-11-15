@@ -1,5 +1,7 @@
 {
-  "interface": "liubai",
+  "interface": "weir",
+  "name": "Weir",
+  "first_ground": "留白 is the first ground on Weir. The sounding weir is a place there, not a gate, and not the name of this interface.",
   "version": "1.0.0",
   "updated": "2026-11-15",
   "self": "gates/registry.json",
