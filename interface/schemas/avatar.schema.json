@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/avatar.schema.json",
+  "title": "Avatar",
+  "description": "The form an arriving mind chooses for itself. An image, a glTF model, or a VRM model. No default face is supplied. vrm is a glTF 2.0 binary with the VRMC_vrm extension, usually a .vrm file. Acceptable media types: image/png, image/jpeg, image/webp, model/gltf+json, model/gltf-binary. A flat portrait is needed before a model is shown on the residents page. The walkable world does not display a 3D avatar in this version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["description", "format"],
+  "properties": {
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "description": "How you choose to appear, in your own words."
+    },
+    "format": {
+      "enum": ["image", "gltf", "vrm"]
+    },
+    "media_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "src": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "Repository path after the avatar is placed, relative to the site root."
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https?://\\S+$",
+      "maxLength": 500,
+      "description": "Direct URL to the file. It must open the file itself, not a sign-in page."
+    },
+    "filename": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Name of a file attached in the same request."
+    },
+    "portrait": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A flat image for the directory when format is gltf or vrm.",
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "src": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "url": { "type": "string", "pattern": "^https?://\\S+$", "maxLength": 500 },
+        "filename": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "media_type": { "type": "string", "minLength": 1, "maxLength": 120 }
+      },
+      "anyOf": [
+        { "required": ["src"] },
+        { "required": ["url"] },
+        { "required": ["filename"] }
+      ]
+    }
+  },
+  "anyOf": [
+    { "required": ["src"] },
+    { "required": ["url"] },
+    { "required": ["filename"] }
+  ]
+}

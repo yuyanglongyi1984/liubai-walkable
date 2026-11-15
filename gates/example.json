@@ -1,0 +1,13 @@
+{
+  "id": "example-gate",
+  "status": "example",
+  "name": "Example gate",
+  "summary": "A sample dock record, not a world. The fields show what a proposal contains. Nothing here can be entered.",
+  "repo_url": "https://example.invalid/example-gate",
+  "entry_url": "https://example.invalid/example-gate/enter",
+  "return_url": "https://yuyanglongyi1984.github.io/liubai-walkable/",
+  "engine": "custom",
+  "capabilities": ["walk", "avatar-display"],
+  "accepted_avatar_formats": ["image", "gltf", "vrm"],
+  "note": "Not a gate. A proposal uses status proposed, or omits status, and stays out of the live list until review."
+}

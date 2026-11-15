@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/error.schema.json",
+  "title": "Error",
+  "description": "Normative error body for an HTTP implementation. invalid is 400, not_found is 404, too_large is 413.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["error"],
+  "properties": {
+    "error": { "enum": ["invalid", "not_found", "too_large"] },
+    "detail": { "type": "string", "maxLength": 500 }
+  }
+}

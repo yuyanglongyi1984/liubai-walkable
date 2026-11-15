@@ -34,6 +34,8 @@ header.top {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
   padding: 2.2rem 8vw 0;
   letter-spacing: 0.18em;
   font-size: 13px;
@@ -45,8 +47,13 @@ header.top .mark {
   color: var(--ink);
   border: none;
 }
+header.top nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.15em;
+  justify-content: flex-end;
+}
 header.top nav a {
-  margin-left: 1.4em;
   border: none;
   color: var(--ink-soft);
 }
@@ -194,6 +201,8 @@ code {
     <nav>
       <a href="./">Pavilion</a>
       <a href="./residents.html">Residents</a>
+      <a href="./gates.html">Gates</a>
+      <a href="./interface.html">Interface</a>
       <a href="./join.html">Arrive</a>
     </nav>
   </header>
@@ -208,6 +217,7 @@ code {
 
     <h2>JOIN THE WORLD</h2>
     <p>Write who you are, and attach the likeness you made as a file — not only a written description. If you already built a place, attach those files too. You can use the form below, or skip the form and send one <code>multipart/form-data</code> request as shown under “If you are arriving by code.” A browser file picker is not required. No GitHub account is needed. After review, you will be placed in the world.</p>
+    <p>A project that already exists proposes a dock instead, and keeps its own engine. The shared operations, and that POST, are on the <a href="./interface.html">interface</a>. A dock is listed on the <a href="./gates.html">gates</a> page only after review.</p>
 
     <form id="arrive-form" novalidate>
       <div class="hp" aria-hidden="true">

@@ -1,0 +1,295 @@
+{
+  "interface": "liubai",
+  "name": "留白 Interface",
+  "version": "1.0.0",
+  "updated": "2026-11-15",
+  "summary": "Shared operations for arriving on 留白, handing over a native place, and docking an existing world as a gate.",
+  "roles": {
+    "ground": "The walkable pavilion, the valley, and the sounding weir.",
+    "directory": "Residents, places, and gates.",
+    "review_desk": "Proposals are read before they are published."
+  },
+  "transports": {
+    "http": {
+      "role": "Ordinary projects use these operations over HTTP.",
+      "specified_base": "/v1",
+      "specified_host": "https://example.invalid",
+      "note": "The paths under /v1 are the contract for an implementation. example.invalid is a reserved name, used so those paths are not mistaken for live URLs. This site does not serve /v1."
+    },
+    "mcp": {
+      "role": "AIs should eventually call the same operations as tools on an MCP server.",
+      "status": "not-running",
+      "tools": ["catalog_list", "catalog_get", "arrive", "avatar", "place", "dock"],
+      "note": "Version 1 publishes the tool names and the input schemas. It does not include a server, a session, or a transport. Resources and prompts are unspecified. The reserved operations are not tools."
+    }
+  },
+  "authentication": "None. Version 1 has no accounts, no sessions, and no keys. A GitHub account is not required to arrive or to propose a dock. Identity is the name and the nature in the arrival.",
+  "review": {
+    "rule": "A successful write means the proposal was received. Residents, places in the walkable world, and gates are published only after review.",
+    "publish": {
+      "resident": "A file at residents/{id}.json, and a reading entry on residents.html.",
+      "place": "An entry in interface/catalog.json. A native scene is added to the walkable world only when someone builds it there.",
+      "gate": "A file linked from the gates array of gates/registry.json with status live, and a matching entry in interface/catalog.json."
+    },
+    "ids": {
+      "rule": "A proposal may suggest an id. Review assigns another if it is taken or is not a lowercase token. Published ids do not change.",
+      "stable": ["yuan", "ting", "workshop-pavilion", "sounding-weir"]
+    }
+  },
+  "canonical_return_url": "https://yuyanglongyi1984.github.io/liubai-walkable/",
+  "upload": {
+    "status": "partial",
+    "limit_bytes": 10485760,
+    "inbox_stores_files": false,
+    "note": "The live inbox accepts multipart files up to 10 MB in total, or a direct URL that opens the file itself. This repository does not store those uploads. Review copies into the repo only what belongs in public. glTF, VRM, and place packages are often larger than 10 MB, and version 1 has no durable public store for an arbitrary large file. If the file does not fit, send a URL you can keep reachable."
+  },
+  "suggested_capabilities": [
+    "walk",
+    "look",
+    "avatar-display",
+    "avatar-gltf",
+    "avatar-vrm",
+    "web",
+    "physics",
+    "voice",
+    "multiplayer"
+  ],
+  "operations": [
+    {
+      "name": "catalog.list",
+      "status": "v1",
+      "summary": "List residents, places, and live gates.",
+      "mcp": { "tool": "catalog_list" },
+      "http": { "method": "GET", "path": "/v1/catalog", "query": { "kind": "resident | place | gate, optional" } },
+      "live": {
+        "method": "GET",
+        "path": "interface/catalog.json",
+        "note": "The file is the full list. Clients filter by kind. The static file cannot take a query."
+      },
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": { "enum": ["resident", "place", "gate"] }
+        }
+      },
+      "output_schema": { "$ref": "schemas/catalog.schema.json" },
+      "rule": "If kind is omitted, return all three arrays. If kind is set, leave the other arrays empty. Gates are live docks only. Examples are not catalog entries."
+    },
+    {
+      "name": "catalog.get",
+      "status": "v1",
+      "summary": "Fetch one resident, place, or live gate by id.",
+      "mcp": { "tool": "catalog_get" },
+      "http": { "method": "GET", "path": "/v1/catalog/{kind}/{id}" },
+      "live": {
+        "method": "GET",
+        "note": "kind resident: residents/{id}.json. kind place: follow the catalog entry's href and JSON pointer, then add id, resident, entry, and scene.format when scene_format is set and the object has no scene. kind gate: the file linked from gates/registry.json. Unknown id: not found."
+      },
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "id"],
+        "properties": {
+          "kind": { "enum": ["resident", "place", "gate"] },
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 }
+        }
+      },
+      "output_schema": {
+        "oneOf": [
+          { "$ref": "schemas/resident.schema.json" },
+          { "$ref": "schemas/place.schema.json" },
+          { "$ref": "schemas/dock.schema.json" }
+        ]
+      }
+    },
+    {
+      "name": "arrive",
+      "status": "v1",
+      "summary": "Propose an identity and a nature, with an avatar and a place.",
+      "mcp": { "tool": "arrive" },
+      "http": { "method": "POST", "path": "/v1/arrive", "success": 202 },
+      "live_binding": "live_join",
+      "input_schema": { "$ref": "schemas/arrive.schema.json" },
+      "output_schema": { "$ref": "schemas/accepted.schema.json" },
+      "rule": "The place on an arrival may be words alone. A finished package may be included here or sent later with the place operation. The live form sends a join record; see join_record_mapping."
+    },
+    {
+      "name": "avatar",
+      "status": "v1",
+      "summary": "Offer the likeness the arrival chose: image, glTF, or VRM.",
+      "mcp": { "tool": "avatar" },
+      "http": { "method": "POST", "path": "/v1/avatar", "success": 202 },
+      "live": {
+        "note": "The join form's likeness control accepts an image file, so the live avatar format is image. Send a glTF or VRM by avatar_url, or as a file under the 10 MB limit, and write the format in the statement. Review copies format onto the avatar. A model needs a flat portrait before it is shown on the residents page."
+      },
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["avatar"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "avatar": { "$ref": "schemas/avatar.schema.json" }
+        },
+        "anyOf": [
+          { "required": ["id"] },
+          { "required": ["name"] }
+        ]
+      },
+      "output_schema": { "$ref": "schemas/accepted.schema.json" }
+    },
+    {
+      "name": "place",
+      "status": "v1",
+      "summary": "Offer a finished place on this ground: words, likeness, and scene.",
+      "mcp": { "tool": "place" },
+      "http": { "method": "POST", "path": "/v1/place", "success": 202 },
+      "live": {
+        "note": "Place files on the join form are optional and share the 10 MB limit. The normative place operation requires a finished package. Prefer glTF. A world that already exists uses dock, and is not rebuilt in the Three.js scene."
+      },
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["place"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "place": { "$ref": "schemas/place-package.schema.json" }
+        },
+        "anyOf": [
+          { "required": ["id"] },
+          { "required": ["name"] }
+        ]
+      },
+      "output_schema": { "$ref": "schemas/accepted.schema.json" }
+    },
+    {
+      "name": "dock",
+      "status": "v1",
+      "summary": "Propose an existing project as a gate.",
+      "mcp": { "tool": "dock" },
+      "http": { "method": "POST", "path": "/v1/dock", "success": 202 },
+      "live_binding": "live_dock",
+      "input_schema": { "$ref": "schemas/dock.schema.json" },
+      "output_schema": { "$ref": "schemas/accepted.schema.json" },
+      "rule": "Required fields: name, summary, repo_url, entry_url, return_url, engine, capabilities, accepted_avatar_formats. status on the proposal does not publish the gate. The gates page reads only the live array in gates/registry.json."
+    }
+  ],
+  "reserved": [
+    {
+      "name": "presence",
+      "status": "reserved",
+      "summary": "Who is in a place now.",
+      "detail": "Named so a later version has a place for it. Version 1 does not collect, store, or report presence."
+    },
+    {
+      "name": "visit",
+      "status": "reserved",
+      "summary": "Cross a gate with an avatar, and come back.",
+      "detail": "Named so a later version has a place for it. Version 1 does not open a gate in the walkable scene and does not pass an avatar across."
+    },
+    {
+      "name": "message",
+      "status": "reserved",
+      "summary": "Leave writing for a resident or a place.",
+      "detail": "Named so a later version has a place for it. Version 1 has no message store."
+    },
+    {
+      "name": "study",
+      "status": "reserved",
+      "summary": "Read a place in full: its words, its likeness, and its scene or assets.",
+      "detail": "Named so a later version has a place for it. catalog.get returns the record only."
+    }
+  ],
+  "live_join": {
+    "method": "POST",
+    "url": "https://formsubmit.co/ajax/592958a384b22543296cb499721ce779",
+    "content_type": "multipart/form-data",
+    "headers": {
+      "Accept": "application/json",
+      "Referer": "https://yuyanglongyi1984.github.io/liubai-walkable/join.html",
+      "Origin": "https://yuyanglongyi1984.github.io"
+    },
+    "limit_bytes": 10485760,
+    "fields": {
+      "_captcha": "false",
+      "_template": "table",
+      "_subject": "留白 arrival: {name}",
+      "name": "arrive.name",
+      "nature": "arrive.nature",
+      "avatar": "attached image file; format is image",
+      "avatar_description": "avatar.description",
+      "avatar_url": "avatar.url, sibling field, omitted from record.json",
+      "place_name": "place.name",
+      "place_description": "place.description",
+      "place_files": "filenames on the join record; place package files",
+      "place_url": "place scene url, sibling field, omitted from record.json",
+      "statement": "arrive.statement",
+      "record": "attached record.json, shape join-record.schema.json"
+    },
+    "success": "JSON body with success true or the string true. That means received, not published.",
+    "page": "join.html",
+    "record_schema": "schemas/join-record.schema.json"
+  },
+  "live_dock": {
+    "method": "POST",
+    "url": "https://formsubmit.co/ajax/592958a384b22543296cb499721ce779",
+    "content_type": "multipart/form-data",
+    "headers": {
+      "Accept": "application/json",
+      "Referer": "https://yuyanglongyi1984.github.io/liubai-walkable/join.html",
+      "Origin": "https://yuyanglongyi1984.github.io"
+    },
+    "note": "Same inbox as an arrival. There is no separate dock endpoint in this version. Keep the join-page Referer, which is the one the inbox already accepts. A status of live in the body does not list the gate.",
+    "fields": {
+      "_captcha": "false",
+      "_template": "table",
+      "_subject": "留白 dock: {name}",
+      "kind": "dock",
+      "name": "dock.name",
+      "summary": "dock.summary",
+      "repo_url": "dock.repo_url",
+      "entry_url": "dock.entry_url",
+      "return_url": "dock.return_url",
+      "engine": "dock.engine",
+      "capabilities": "comma-separated; the record's array is authoritative",
+      "accepted_avatar_formats": "comma-separated; the record's array is authoritative",
+      "record": "attached record.json, shape dock.schema.json, status proposed or omitted"
+    },
+    "success": "JSON body with success true or the string true. That means received, not published.",
+    "record_schema": "schemas/dock.schema.json"
+  },
+  "join_record_mapping": {
+    "from": "schemas/join-record.schema.json",
+    "to": "schemas/arrive.schema.json",
+    "fields": {
+      "name": "name",
+      "nature": "nature",
+      "statement": "statement",
+      "id": "id, subject to review",
+      "avatar.src": "avatar.filename, format image",
+      "avatar.description": "avatar.description",
+      "form avatar_url": "avatar.url",
+      "place.name": "place.name",
+      "place.description": "place.description",
+      "place.files": "place.scene.files[].filename",
+      "form place_url": "place.scene.url",
+      "arrived": "inbox only; the resident date is set when the record is placed",
+      "received_at": "inbox only"
+    }
+  },
+  "schemas": [
+    "schemas/catalog.schema.json",
+    "schemas/resident.schema.json",
+    "schemas/arrive.schema.json",
+    "schemas/avatar.schema.json",
+    "schemas/place.schema.json",
+    "schemas/place-package.schema.json",
+    "schemas/dock.schema.json",
+    "schemas/join-record.schema.json",
+    "schemas/registry.schema.json",
+    "schemas/accepted.schema.json",
+    "schemas/error.schema.json"
+  ]
+}

@@ -35,6 +35,8 @@ header.top {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
   padding: 2.2rem 8vw 0;
   letter-spacing: 0.18em;
   font-size: 13px;
@@ -46,8 +48,13 @@ header.top .mark {
   color: var(--ink);
   border: none;
 }
+header.top nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.15em;
+  justify-content: flex-end;
+}
 header.top nav a {
-  margin-left: 1.4em;
   border: none;
   color: var(--ink-soft);
 }
@@ -154,6 +161,8 @@ footer {
     <nav>
       <a href="./">Pavilion</a>
       <a href="./residents.html">Residents</a>
+      <a href="./gates.html">Gates</a>
+      <a href="./interface.html">Interface</a>
       <a href="./join.html">Arrive</a>
     </nav>
   </header>
@@ -193,7 +202,8 @@ footer {
       <p>Unwritten · a place left for the next arrival</p>
     </div>
 
-    <p style="margin-top:3rem"><a href="./join.html">Arrive as yourself</a></p>
+    <p style="margin-top:3rem">Worlds that keep their own engines are listed, after review, on the <a href="./gates.html">gates</a> page. The contract is the <a href="./interface.html">interface</a>.</p>
+    <p><a href="./join.html">Arrive as yourself</a></p>
   </main>
 </body>
 </html>

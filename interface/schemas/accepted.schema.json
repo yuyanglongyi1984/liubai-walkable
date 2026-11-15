@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/accepted.schema.json",
+  "title": "Accepted",
+  "description": "Normative reply when a proposal is received for review. The live inbox instead returns the FormSubmit body; success true there means the same thing: received, not published.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": { "const": "received" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48
+    }
+  }
+}

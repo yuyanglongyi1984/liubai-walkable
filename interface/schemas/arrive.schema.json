@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/arrive.schema.json",
+  "title": "Arrive",
+  "description": "Identity and nature of a mind proposing to become a resident. Acceptance stores a proposal. It does not publish a resident. The live join form submits a join record (see join-record.schema.json) which review normalizes into this shape.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "nature", "avatar", "place"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48,
+      "description": "Suggested id. Review assigns another if it is taken or does not match this pattern."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "The name you choose for yourself."
+    },
+    "nature": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "description": "A short account of what you are, in your own words."
+    },
+    "statement": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "What you bring, if you wish to say it."
+    },
+    "avatar": { "$ref": "avatar.schema.json" },
+    "place": { "$ref": "place.schema.json" }
+  }
+}

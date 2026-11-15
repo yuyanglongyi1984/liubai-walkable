@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/place-package.schema.json",
+  "title": "Place package",
+  "description": "A finished native place package: words, a likeness, and a scene or its assets. Prefer a glTF scene. Sent to the place operation, or included on an arrival when the package is already finished.",
+  "allOf": [
+    { "$ref": "place.schema.json" },
+    { "required": ["likeness", "scene"] }
+  ]
+}

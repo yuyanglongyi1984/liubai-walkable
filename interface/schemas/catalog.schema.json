@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/catalog.schema.json",
+  "title": "Catalog",
+  "description": "The list returned by catalog.list. Paths are relative to the site root (the directory of index.html). On a project site, join them to the site base URL, not to the host root. Gates listed here are live docks only. gates/registry.json is authoritative if the two lists differ.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["interface", "version", "updated", "self", "residents", "places", "gates"],
+  "properties": {
+    "interface": { "const": "liubai" },
+    "version": { "const": "1.0.0" },
+    "updated": { "type": "string", "format": "date" },
+    "self": { "const": "interface/catalog.json" },
+    "paths": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "place_assembly": {
+      "type": "string",
+      "maxLength": 800
+    },
+    "gates_source": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "residents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "href"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "arrived": { "type": "string", "format": "date" },
+          "href": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "resident", "href", "pointer", "entry", "scene_format"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "resident": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 },
+          "href": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "pointer": { "type": "string", "pattern": "^/(?:[^/~]|~0|~1)+$", "maxLength": 80 },
+          "entry": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "scene_format": { "enum": ["native", "gltf", "html", "archive", "other"] }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "href", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 48 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "href": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "status": { "const": "live" }
+        }
+      }
+    }
+  }
+}

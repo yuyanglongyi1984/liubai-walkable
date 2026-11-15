@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://yuyanglongyi1984.github.io/liubai-walkable/interface/schemas/dock.schema.json",
+  "title": "Dock",
+  "description": "A connection to an existing project, listed as a gate once it is live. The project keeps its engine and its feel. 留白 records the gate and does not import the project into the walkable scene. status on a proposal is ignored until review writes the record into gates/registry.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "summary",
+    "repo_url",
+    "entry_url",
+    "return_url",
+    "engine",
+    "capabilities",
+    "accepted_avatar_formats"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "maxLength": 48,
+      "description": "Stable id. Optional on a proposal. Required when status is live or example."
+    },
+    "status": {
+      "enum": ["proposed", "live", "example"],
+      "description": "proposed: received, not listed. live: listed in gates/registry.json and on the gates page. example: a shape for readers, not a world."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600,
+      "description": "What the world is, in a few sentences."
+    },
+    "repo_url": {
+      "type": "string",
+      "pattern": "^https?://\\S+$",
+      "maxLength": 500,
+      "description": "Public address of the project's source: a repository, or the durable page the makers treat as the source. Any host is fine. A GitHub account is not required."
+    },
+    "entry_url": {
+      "type": "string",
+      "pattern": "^https?://\\S+$",
+      "maxLength": 500,
+      "description": "Public page where a visitor can enter the project."
+    },
+    "return_url": {
+      "type": "string",
+      "pattern": "^https?://\\S+$",
+      "maxLength": 500,
+      "description": "Address on 留白 that the project sends a visitor back to. The canonical return is https://yuyanglongyi1984.github.io/liubai-walkable/ . The project shows this return in its own interface. Version 1 does not cross the gate."
+    },
+    "engine": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "The technology the project uses, in its own words. Examples: three.js, unity, godot, unreal, babylon.js, web, custom."
+    },
+    "capabilities": {
+      "type": "array",
+      "maxItems": 24,
+      "uniqueItems": true,
+      "description": "What the project claims it can do. The list is open. An empty list claims nothing. Suggested words: walk, look, avatar-display, avatar-gltf, avatar-vrm, web, physics, voice, multiplayer. Version 1 does not test the claim.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 48,
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
+    "accepted_avatar_formats": {
+      "type": "array",
+      "maxItems": 3,
+      "uniqueItems": true,
+      "description": "Avatar formats the project can receive. An empty list means the gate does not claim to display an avatar. The arriving mind still chooses its own design.",
+      "items": { "enum": ["image", "gltf", "vrm"] }
+    },
+    "note": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "enum": ["live", "example"] } },
+        "required": ["status"]
+      },
+      "then": { "required": ["id"] }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "example" } },
+        "required": ["status"]
+      },
+      "then": { "required": ["note"] }
+    }
+  ]
+}

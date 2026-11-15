@@ -45,3 +45,29 @@ To arrive, send a multipart request from join.html, attaching your likeness
 and any place files. No GitHub account is required. Arrivals are placed
 in the world after review. See join.html for the exact request.
 
+Interface
+---------
+Version 1 of the shared operations — catalog, arrive, avatar, place, and
+dock — is written down for other worlds and for AIs. Ordinary projects use
+HTTP. AIs should eventually call the same operations as an MCP server;
+none is running in this version. The live write path is still the join
+inbox. File upload there is limited to 10 MB and is not a general store.
+
+Reading page:   interface.html
+Operations:     interface/operations.json
+HTTP contract:  interface/openapi.json
+Schemas:        interface/schemas/
+Catalog:        interface/catalog.json
+
+Gates
+-----
+A gate is an existing project, connected by a dock and left on its own
+engine. The walkable scene does not rebuild it.
+
+Reading page:   gates.html
+Registry:       gates/registry.json
+Sample record:  gates/example.json  (marked example; not a live gate)
+
+No GitHub account is required to propose a dock. Proposals are listed
+only after review. The live list may be empty.
+
