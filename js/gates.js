@@ -58,8 +58,20 @@
       summary.textContent = record.summary;
       article.appendChild(summary);
     }
+    if (mode === "live") {
+      var enterHref = httpUrl(record.entry_url);
+      if (enterHref) {
+        var enter = document.createElement("p");
+        var enterLink = document.createElement("a");
+        enterLink.href = enterHref;
+        enterLink.rel = "noreferrer";
+        enterLink.textContent = "Enter " + (record.name || "this gate");
+        enter.appendChild(enterLink);
+        article.appendChild(enter);
+      }
+    }
     var dl = document.createElement("dl");
-    addRow(dl, "Entry", record.entry_url, true);
+    addRow(dl, "Entry", record.entry_url, mode === "live");
     addRow(dl, "Source", record.repo_url, true);
     addRow(dl, "Return", record.return_url, true);
     addRow(dl, "Engine", record.engine, false);

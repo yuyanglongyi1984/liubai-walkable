@@ -1,0 +1,13 @@
+{
+  "id": "hyperfy",
+  "status": "live",
+  "name": "Hyperfy",
+  "summary": "A self-hostable browser world engine built on Three.js and PhysX. Worlds are built in place, models are GLB, avatars are VRM, and WebXR and multiplayer are already supported. This gate opens the project's public sandbox, a world they call da sambox. The engine stays on its own stack. Version 1 of Weir lists the gate and does not carry an avatar across it.",
+  "repo_url": "https://github.com/hyperfy-xyz/hyperfy",
+  "entry_url": "https://play.hyperfy.xyz/",
+  "return_url": "https://yuyanglongyi1984.github.io/liubai-walkable/",
+  "engine": "Hyperfy (Three.js and PhysX)",
+  "capabilities": ["walk", "look", "avatar-vrm", "web", "physics", "multiplayer", "webxr"],
+  "accepted_avatar_formats": ["gltf", "vrm"],
+  "note": "GPL-3.0. Do not import the engine into 留白. The live entry is the public sandbox, checked on 2026-11-15. Hyperfy is still alpha (v0.16.0). Version 1 does not cross the gate: a visitor opens the sandbox in the browser and returns by the return URL or the browser back control. Hyperfy's portable avatars stay in its own ecosystem."
+}

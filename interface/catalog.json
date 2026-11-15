@@ -42,5 +42,12 @@
       "scene_format": "native"
     }
   ],
-  "gates": []
+  "gates": [
+    {
+      "id": "hyperfy",
+      "name": "Hyperfy",
+      "href": "gates/hyperfy.json",
+      "status": "live"
+    }
+  ]
 }
