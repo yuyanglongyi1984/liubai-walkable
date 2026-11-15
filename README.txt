@@ -70,8 +70,11 @@ engine. The walkable scene does not rebuild it.
 
 Reading page:   gates.html
 Registry:       gates/registry.json
+Live gate:      gates/hyperfy.json
+                Hyperfy, public sandbox https://play.hyperfy.xyz/
 Sample record:  gates/example.json  (marked example; not a live gate)
 
 No GitHub account is required to propose a dock. Proposals are listed
-only after review. The live list may be empty.
+only after review. Hyperfy is the first live gate. Version 1 lists the
+gate and does not carry an avatar across it.
 

@@ -5,7 +5,14 @@
   "version": "1.0.0",
   "updated": "2026-11-15",
   "self": "gates/registry.json",
-  "gates": [],
+  "gates": [
+    {
+      "id": "hyperfy",
+      "name": "Hyperfy",
+      "href": "gates/hyperfy.json",
+      "status": "live"
+    }
+  ],
   "examples": [
     {
       "id": "example-gate",
